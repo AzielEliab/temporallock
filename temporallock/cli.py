@@ -1,6 +1,7 @@
 """Command-line interface for TemporalLock.
 
     temporallock version
+    temporallock ui [--host 127.0.0.1] [--port 8766]
     temporallock genesis --chain FILE.jsonl --summary "..." --evidence "..."
     temporallock append  --chain FILE.jsonl --summary "..." --evidence "..." [--confidence 0.7] [--timestamp ISO]
     temporallock verify FILE.jsonl
@@ -33,6 +34,10 @@ def _build_parser() -> argparse.ArgumentParser:
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     sub.add_parser("version", help="Print package version.")
+
+    p_ui = sub.add_parser("ui", help="Run the localhost UI (127.0.0.1:8766).")
+    p_ui.add_argument("--host", default="127.0.0.1", help="Bind host (default 127.0.0.1).")
+    p_ui.add_argument("--port", type=int, default=8766, help="Bind port (default 8766).")
 
     p_gen = sub.add_parser("genesis", help="Write the first receipt (prev_hash = 64 zeros).")
     p_gen.add_argument("--chain", required=True, help="JSONL chain path (must not already exist).")
@@ -72,6 +77,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     try:
         if args.cmd == "version":
             print(f"temporallock {__version__}")
+            return 0
+
+        if args.cmd == "ui":
+            from temporallock.ui import serve
+
+            serve(host=args.host, port=args.port)
             return 0
 
         if args.cmd == "genesis":

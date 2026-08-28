@@ -36,6 +36,13 @@ Direct tarball (also counted): [temporallock-0.1.0.tar.gz](https://temporallock-
 
 ---
 
+
+## Local UI
+
+`temporallock ui` serves a loopback dashboard at http://127.0.0.1:8766
+
+Binds to `127.0.0.1` only. Self-contained HTML (no CDN). Genesis / append / verify a local chain in a process tmp dir. Receipts, not truth claims.
+
 ## What it does
 
 TemporalLock records **receipts**. A receipt is an observer's note that
@@ -111,6 +118,7 @@ python -m pip install temporallock-0.1.0.tar.gz
 
 ```bash
 temporallock version
+temporallock ui        # localhost UI on 127.0.0.1:8766
 
 # First receipt (explicit genesis; append will not create a missing file)
 temporallock genesis --chain notes.jsonl --summary "sky was overcast" \
