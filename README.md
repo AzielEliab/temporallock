@@ -221,6 +221,26 @@ TemporalLock does not add consensus, mining, tokens, or "truth scores".
 It does not interpret summaries. It does not declare a canonical fork.
 It is a receipt log, not an oracle.
 
+## Use with Grok, ChatGPT, Venice
+
+Live HTTPS runtime on the existing download-tracker Worker. Stateless: send the chain JSON in the body. Receipts, not truth claims.
+
+OpenAPI (ChatGPT GPT Actions / Venice custom HTTP / Grok custom tool):
+
+```
+https://temporallock-download-tracker.vibelock.workers.dev/openapi.json
+```
+
+Setup notes: [https://temporallock-download-tracker.vibelock.workers.dev/ai](https://temporallock-download-tracker.vibelock.workers.dev/ai)
+
+MCP catalog (ships separately): `https://aziel-runtime.vibelock.workers.dev/mcp`
+
+```bash
+curl -sS -X POST https://temporallock-download-tracker.vibelock.workers.dev/v1/genesis \
+  -H "content-type: application/json" \
+  -d '{"summary":"observed package release","evidence":"sha256:abc path:README.md","confidence":1.0}'
+```
+
 ## License
 
 Apache-2.0. See [LICENSE](LICENSE).
