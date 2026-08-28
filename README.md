@@ -15,6 +15,21 @@ How to contribute: [CONTRIBUTING.md](CONTRIBUTING.md).
 
 **Forks are welcome and always allowed.**
 
+## Quick start
+
+```bash
+python -m venv .venv && source .venv/bin/activate && pip install -e ".[dev]"
+temporallock ui
+```
+
+Open http://127.0.0.1:8766 (loopback only). No CDN, no telemetry.
+
+Counted download: [https://temporallock-download-tracker.vibelock.workers.dev/](https://temporallock-download-tracker.vibelock.workers.dev/)
+
+File gate: `temporallock gate FILE` hashes the file, appends a receipt, and verifies before treating it as accepted.
+
+
+
 ---
 
 ## Download
@@ -42,6 +57,22 @@ Direct tarball (also counted): [temporallock-0.1.0.tar.gz](https://temporallock-
 `temporallock ui` serves a loopback dashboard at http://127.0.0.1:8766
 
 Binds to `127.0.0.1` only. Self-contained HTML (no CDN). Genesis / append / verify a local chain in a process tmp dir. Receipts, not truth claims.
+
+
+## iPhone & Android
+
+Flutter sources: [`mobile/`](mobile/). Application id `com.azieeliab.temporallock`. Offline. No analytics. Dark matte / gold.
+
+Genesis / append / verify on device. Receipts, not truth claims.
+
+```bash
+cd mobile
+flutter create --org com.azieeliab --project-name temporallock .
+flutter pub get
+flutter run
+```
+
+The `android/` and `ios/` folders in this tree are skeleton READMEs until you run `flutter create .` (this machine has no Flutter SDK on PATH). Then open `android/` in Android Studio or `ios/Runner.xcworkspace` in Xcode. Not a store listing.
 
 ## What it does
 
@@ -181,6 +212,7 @@ docs/whitepaper.md     July 2026 spec
 examples/              record an observation
 workers/download-tracker/   Cloudflare Worker + wrangler.toml
 CONTRIBUTING.md        forks are first-class
+mobile/              Flutter iPhone + Android (`flutter create .`)
 ```
 
 ## What this is not

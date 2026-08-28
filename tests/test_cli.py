@@ -121,3 +121,41 @@ def test_cli_genesis_refuses_existing(tmp_path: Path, capsys) -> None:
     rc = main(["genesis", "--chain", str(path), "--summary", "s2", "--evidence", "e2"])
     assert rc != 0
     capsys.readouterr()
+
+
+def test_help_lists_ui_and_version() -> None:
+    from temporallock.cli import _build_parser
+
+    text = _build_parser().format_help()
+    assert "ui" in text
+    assert "version" in text
+    assert "gate" in text
+    assert "127.0.0.1:8766" in text or "temporallock ui" in text
+
+
+def test_cli_gate_hashes_and_accepts(tmp_path: Path, capsys) -> None:
+    target = tmp_path / "note.txt"
+    target.write_text("observed sky\n", encoding="utf-8")
+    rc = main(["gate", str(target)])
+    out = capsys.readouterr().out
+    assert rc == 0
+    assert "accepted" in out
+    assert "file_sha256=" in out
+    chain = Path(str(target) + ".receipts.jsonl")
+    assert chain.is_file()
+
+    rc = main(["gate", str(target), "--json"])
+    payload = json.loads(capsys.readouterr().out)
+    assert rc == 0
+    assert payload["ok"] is True
+    assert payload["accepted"] is True
+    assert payload["length"] == 2
+    assert payload["file_sha256"]
+    assert payload["action"] == "appended"
+
+
+def test_cli_gate_missing_file(tmp_path: Path, capsys) -> None:
+    rc = main(["gate", str(tmp_path / "nope.bin")])
+    assert rc != 0
+    err = capsys.readouterr().err
+    assert "not found" in err.lower()

@@ -1,18 +1,22 @@
 """Command-line interface for TemporalLock.
 
-    temporallock version
     temporallock ui [--host 127.0.0.1] [--port 8766]
+    temporallock version
+    temporallock gate FILE [--chain FILE.jsonl]
     temporallock genesis --chain FILE.jsonl --summary "..." --evidence "..."
     temporallock append  --chain FILE.jsonl --summary "..." --evidence "..." [--confidence 0.7] [--timestamp ISO]
     temporallock verify FILE.jsonl
     temporallock show FILE.jsonl
 
 Receipts, not truth claims. Forks always allowed.
+``gate FILE`` hashes the file and appends a receipt before treating it
+as accepted (genesis if the chain is new, else append, then verify).
 """
 
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -28,7 +32,8 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="temporallock",
         description=(
             "TemporalLock — append-only observation receipts "
-            "(Aziel Eliab, July 2026). Receipts, not truth claims."
+            "(Aziel Eliab, July 2026). Receipts, not truth claims. "
+            "Local UI: `temporallock ui` at http://127.0.0.1:8766."
         ),
     )
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -59,7 +64,85 @@ def _build_parser() -> argparse.ArgumentParser:
     p_show = sub.add_parser("show", help="Print receipts in a chain.")
     p_show.add_argument("file", help="JSONL chain path.")
 
+    p_gate = sub.add_parser(
+        "gate",
+        help="Hash FILE, append a receipt, verify; treat the file as accepted only if the chain is intact.",
+    )
+    p_gate.add_argument("file", help="File to hash and accept.")
+    p_gate.add_argument(
+        "--chain",
+        default=None,
+        help="JSONL chain path (default: FILE.receipts.jsonl beside the file).",
+    )
+    p_gate.add_argument("--summary", default=None, help="Optional summary (default: gate accept <name>).")
+    p_gate.add_argument("--confidence", type=float, default=1.0, help="Observer confidence in [0.0, 1.0].")
+    p_gate.add_argument("--timestamp", default=None, help="UTC ISO-8601 timestamp (default: now).")
+    p_gate.add_argument("--json", action="store_true", dest="as_json", help="Print the verify payload as JSON.")
+
     return parser
+
+
+
+def _sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as fh:
+        for chunk in iter(lambda: fh.read(65536), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _cmd_gate(args: argparse.Namespace) -> int:
+    path = Path(args.file)
+    if not path.is_file():
+        print(f"not found: {path}", file=sys.stderr)
+        return 2
+    digest = _sha256_file(path)
+    evidence = f"sha256:{digest} path:{path.name}"
+    summary = args.summary or f"gate accept {path.name}"
+    chain_path = Path(args.chain) if args.chain else Path(str(path) + ".receipts.jsonl")
+    if not chain_path.is_file() or chain_path.stat().st_size == 0:
+        chain = Chain.genesis(
+            chain_path,
+            summary=summary,
+            evidence=evidence,
+            confidence=args.confidence,
+            timestamp=args.timestamp,
+        )
+        rec = chain[-1]
+        action = "genesis"
+    else:
+        chain = Chain.load(chain_path)
+        rec = chain.append(
+            summary=summary,
+            evidence=evidence,
+            confidence=args.confidence,
+            timestamp=args.timestamp,
+            require_existing=True,
+        )
+        action = "appended"
+    result = chain.verify()
+    payload = {
+        "ok": result.ok,
+        "accepted": bool(result.ok),
+        "action": action,
+        "file": str(path),
+        "file_sha256": digest,
+        "receipt": rec.hash,
+        "chain": str(chain_path),
+        "length": result.length,
+        "errors": result.errors,
+    }
+    if args.as_json:
+        print(json.dumps(payload, indent=2))
+    else:
+        print(f"{action} {rec.hash}")
+        print(f"file_sha256={digest}")
+        print(f"chain={chain_path}")
+        if result.ok:
+            print("accepted")
+        else:
+            print("chain broken; file not accepted", file=sys.stderr)
+    return 0 if result.ok else 1
 
 
 def _print_receipt_brief(receipt, index: int | None = None) -> None:
@@ -148,6 +231,9 @@ def main(argv: Sequence[str] | None = None) -> int:
                     for h in f.child_hashes:
                         print(f"    child={h}")
             return 0
+
+        if args.cmd == "gate":
+            return _cmd_gate(args)
 
         parser.error(f"unknown command {args.cmd}")
         return 2
