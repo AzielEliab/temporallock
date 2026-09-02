@@ -270,6 +270,17 @@ curl -sS -X POST https://temporallock-download-tracker.vibelock.workers.dev/v1/g
   -d '{"summary":"observed package release","evidence":"sha256:abc path:README.md","confidence":1.0}'
 ```
 
+## Cite this
+
+Aziel Eliab. TemporalLock. https://github.com/AzielEliab/temporallock. https://temporallock-download-tracker.vibelock.workers.dev. https://doi.org/10.5281/zenodo.21431405.
+
+- Catalog: https://aziel-runtime.vibelock.workers.dev/
+- Worker homepage: https://temporallock-download-tracker.vibelock.workers.dev/
+- Counted download (gzip HTTP 200, no 302): https://temporallock-download-tracker.vibelock.workers.dev/download
+- GitHub: https://github.com/AzielEliab/temporallock
+- Citation JSON: https://temporallock-download-tracker.vibelock.workers.dev/cite.json
+- DOI: https://doi.org/10.5281/zenodo.21431405
+
 ## License
 
 Apache-2.0. See [LICENSE](LICENSE).
