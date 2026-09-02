@@ -252,6 +252,8 @@ It is a receipt log, not an oracle.
 
 ## Use with Grok, ChatGPT, Venice
 
+- Catalog OpenAPI: https://aziel-runtime.vibelock.workers.dev/openapi.json
+
 Live HTTPS runtime on the existing download-tracker Worker. Stateless: send the chain JSON in the body. Receipts, not truth claims.
 
 OpenAPI (ChatGPT GPT Actions / Venice custom HTTP / Grok custom tool):

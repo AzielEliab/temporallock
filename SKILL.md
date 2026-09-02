@@ -49,3 +49,18 @@ Counted download (gzip HTTP 200, no 302): https://temporallock-download-tracker.
 GitHub: https://github.com/AzielEliab/temporallock
 
 Paper: DOI https://doi.org/10.5281/zenodo.21431405 · https://zenodo.org/records/21431405 · Apache-2.0. Forks welcome.
+
+## Catalog + local UI
+
+Author: **Aziel Eliab**. Honest scope: Append-only observation receipts. Receipts, not truth claims.
+
+- Catalog product: https://aziel-runtime.vibelock.workers.dev/p/temporallock/
+- Catalog OpenAPI: https://aziel-runtime.vibelock.workers.dev/openapi.json
+- Catalog MCP: `POST https://aziel-runtime.vibelock.workers.dev/mcp`
+- This Worker skill: `GET https://temporallock-download-tracker.vibelock.workers.dev/v1/skill`
+- This Worker OpenAPI: https://temporallock-download-tracker.vibelock.workers.dev/openapi.json
+- Sample payload: `GET https://temporallock-download-tracker.vibelock.workers.dev/v1/example`
+
+Local UI: **Import JSON file** (`type=file`) and **Export JSON**. Then `temporallock doctor`.
+
+Grok: import catalog or Worker OpenAPI as a custom tool. ChatGPT: GPT Actions. Venice: HTTP tools.
