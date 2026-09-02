@@ -22,6 +22,35 @@ python -m venv .venv && source .venv/bin/activate && pip install -e ".[dev]"
 temporallock ui
 ```
 
+
+## One-click install
+
+```bash
+curl -fsSL https://temporallock-download-tracker.vibelock.workers.dev/install.sh | bash
+```
+
+The script curls the **counted** tarball from this project's Worker
+(`/download`, User-Agent `Mozilla/5.0`), extracts, makes a venv, and
+`pip install -e .`. Then run `temporallock ui`.
+
+Or tap **Download** / **One-click install** on the Worker homepage:
+https://temporallock-download-tracker.vibelock.workers.dev/
+
+## Counted download (Cloudflare Worker)
+
+**This is the counted download.** GitHub releases exist as a mirror.
+The Worker serves the gzip itself (HTTP 200, no 302 to GitHub).
+
+- Homepage: [https://temporallock-download-tracker.vibelock.workers.dev/](https://temporallock-download-tracker.vibelock.workers.dev/)
+- Direct tarball: [temporallock-0.1.0.tar.gz](https://temporallock-download-tracker.vibelock.workers.dev/download?asset=temporallock-0.1.0.tar.gz)
+- One-click install: [https://temporallock-download-tracker.vibelock.workers.dev/install.sh](https://temporallock-download-tracker.vibelock.workers.dev/install.sh)
+- Skill: [https://temporallock-download-tracker.vibelock.workers.dev/v1/skill](https://temporallock-download-tracker.vibelock.workers.dev/v1/skill)
+- OpenAPI: [https://temporallock-download-tracker.vibelock.workers.dev/openapi.json](https://temporallock-download-tracker.vibelock.workers.dev/openapi.json)
+- GitHub: [https://github.com/AzielEliab/temporallock](https://github.com/AzielEliab/temporallock)
+- Zenodo DOI: [10.5281/zenodo.21431405](https://doi.org/10.5281/zenodo.21431405) · [record](https://zenodo.org/records/21431405)
+
+Isolated counter: Worker `temporallock-download-tracker`, KV `TEMPORALLOCK_DOWNLOADS`. `/v1` does not increment downloads.
+
 Open http://127.0.0.1:8766 (loopback only). No CDN, no telemetry.
 
 Counted download: [https://temporallock-download-tracker.vibelock.workers.dev/](https://temporallock-download-tracker.vibelock.workers.dev/)

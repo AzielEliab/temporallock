@@ -119,6 +119,7 @@ PAGE = r"""<!DOCTYPE html>
       <button type="button" id="genesis">Genesis</button>
       <button type="button" id="append">Append</button>
       <button type="button" class="ghost" id="verify">Verify</button>
+      <label class="ghost">Import JSON <input type="file" id="import-json" accept="application/json,.json,.jsonl"></label>
       <button type="button" class="ghost" id="export">Export JSON receipts</button>
     </div>
   </form>
@@ -188,6 +189,19 @@ PAGE = r"""<!DOCTYPE html>
   };
   $("verify").onclick = async () => {
     try { draw(await post("/api/verify", {})); } catch (e) { fail(String(e.message || e)); }
+  };
+  $("import-json").onchange = async () => {
+    const f = $("import-json").files && $("import-json").files[0];
+    if (!f) return;
+    const text = await f.text();
+    let receipts;
+    try {
+      const parsed = JSON.parse(text);
+      receipts = Array.isArray(parsed) ? parsed : (parsed.receipts || []);
+    } catch (e) {
+      receipts = text.split(/\n/).filter(Boolean).map((line) => JSON.parse(line));
+    }
+    try { draw(await post("/api/import", { receipts: receipts })); } catch (err) { fail(String(err.message || err)); }
   };
   $("export").onclick = () => {
     if (!last) return;
@@ -313,6 +327,19 @@ class Handler(BaseHTTPRequestHandler):
             if path == "/api/genesis":
                 chain = Chain.genesis(dest, summary=summary, evidence=evidence, confidence=confidence)
                 self._json(200, _payload(chain, "Genesis receipt written. Receipts, not truth claims."))
+                return
+            if path == "/api/import":
+                receipts = body.get("receipts")
+                if not isinstance(receipts, list) or not receipts:
+                    self._json(400, {"error": "receipts array required"})
+                    return
+                dest = self._chain_path()
+                dest.write_text(
+                    "\n".join(json.dumps(r, sort_keys=True, separators=(",", ":"), ensure_ascii=False) for r in receipts if isinstance(r, dict)) + "\n",
+                    encoding="utf-8",
+                )
+                chain = Chain.load(dest)
+                self._json(200, _payload(chain, "Imported receipts. Receipts, not truth claims."))
                 return
             if path == "/api/append":
                 if not dest.is_file() or dest.stat().st_size == 0:

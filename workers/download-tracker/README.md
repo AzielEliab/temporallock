@@ -1,105 +1,14 @@
-# TemporalLock download tracker (Cloudflare Worker)
+# temporallock download tracker
 
-Counts GitHub-release downloads for TemporalLock across the canonical
-repository, other branches, and forks. Forks are identified by GitHub
-`owner/repo`.
+Isolated Worker `temporallock-download-tracker`. Project `temporallock`.
+KV namespace `TEMPORALLOCK_DOWNLOADS` bound as `DOWNLOADS`.
+Does **not** 302 to GitHub on `/download`. Serves gzip via `ASSETS.fetch`,
+`Cache-Control: private, no-store`.
 
-**This worker must be deployed** before
-`https://temporallock-download-tracker.vibelock.workers.dev` resolves.
-Until then, send people to
-[GitHub Releases](https://github.com/AzielEliab/temporallock/releases).
+GET `/` increments a **page-view** counter (separate from downloads).
+GET `/download` increments **downloads**.
+`/v1` never increments DOWNLOADS KV.
+GET `/install.sh` one-click install (does not increment; script curls `/download`).
+GET `/v1/skill` returns skill markdown (`text/markdown`). Does not increment views or downloads.
 
-No secrets belong in this directory. The KV namespace id in
-`wrangler.toml` is the placeholder `REPLACE_ME` until you create a
-namespace.
-
-Receipts, not truth claims. Forks are welcome and always allowed.
-
-## Bindings
-
-| Binding     | Type | Purpose |
-|-------------|------|---------|
-| `DOWNLOADS` | KV   | Counters keyed `project|owner|repo|branch|fork` |
-
-## Deploy
-
-```bash
-cd workers/download-tracker
-
-# 1. Log in once (opens a browser; token stays in wrangler, not in git)
-npx wrangler login
-
-# 2. Create the KV namespace. Paste the id into wrangler.toml
-#    replacing REPLACE_ME. Binding name MUST stay DOWNLOADS.
-npx wrangler kv namespace create DOWNLOADS
-
-# 3. Deploy
-npx wrangler deploy
-```
-
-The `workers.dev` subdomain wrangler prints
-(`temporallock-download-tracker.<account>.workers.dev`) is enough until
-custom DNS is ready. This tree documents the intended public URL
-`https://temporallock-download-tracker.vibelock.workers.dev`.
-
-Do not deploy from this tree until KV is a real id.
-
-## Routes
-
-| Method | Path | Behavior |
-|--------|------|----------|
-| GET | `/` | Index page with the GitHub Releases link |
-| GET | `/download?repo=&tag=&asset=` | Increment KV, 302 to the GitHub asset (default: releases page) |
-| GET | `/stats` | JSON totals plus per-repo and per-branch breakdown |
-| POST | `/event` | A fork reports a download |
-
-Query params on `/download`: `owner`, `repo` (`AzielEliab/temporallock` is
-accepted), `branch`, `fork` (`1` or `owner/repo`), `tag`, `asset`.
-
-Default redirect with no asset:
-
-```
-https://github.com/AzielEliab/temporallock/releases
-```
-
-Tracked asset URL (after deploy):
-
-```
-https://temporallock-download-tracker.vibelock.workers.dev/download?repo=AzielEliab/temporallock&tag=latest&asset=temporallock-0.1.0.tar.gz
-```
-
-A fork reports its own download:
-
-```bash
-curl -X POST https://temporallock-download-tracker.vibelock.workers.dev/event \
-  -H "content-type: application/json" \
-  -d '{
-    "owner": "YourFork",
-    "repo": "temporallock",
-    "branch": "main",
-    "fork": "1",
-    "asset": "temporallock-0.1.0.tar.gz"
-  }'
-```
-
-`fork=1` or `fork=YourFork/temporallock`. If `owner/repo` is not
-`AzielEliab/temporallock`, the worker records `fork=1` automatically.
-
-## Stats
-
-`GET /stats` returns `total`, `by_repo`, `by_branch`, `by_fork`, and a
-`breakdown` array so forks can read aggregates.
-
-## CORS
-
-All responses include `Access-Control-Allow-Origin: *`.
-
-## Use with Grok, ChatGPT, Venice
-
-This Worker now also hosts the product runtime API. `/v1` calls never increment DOWNLOADS KV.
-
-- OpenAPI: `https://temporallock-download-tracker.vibelock.workers.dev/openapi.json`
-- Health: `GET /v1/health` → `{ok, product, version:"0.1.0"}`
-- Setup HTML: `GET /ai` (ChatGPT Actions, Grok/xAI custom tool, Venice custom HTTP; MCP catalog `https://aziel-runtime.vibelock.workers.dev/mcp`)
-
-CORS `*` on API routes.
+Host: https://temporallock-download-tracker.vibelock.workers.dev

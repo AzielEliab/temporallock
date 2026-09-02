@@ -79,6 +79,16 @@ def _build_parser() -> argparse.ArgumentParser:
     p_gate.add_argument("--timestamp", default=None, help="UTC ISO-8601 timestamp (default: now).")
     p_gate.add_argument("--json", action="store_true", dest="as_json", help="Print the verify payload as JSON.")
 
+
+    p_doc = sub.add_parser("doctor", help="Self-check. No network, no telemetry.")
+    p_doc.add_argument("--json", action="store_true", dest="as_json", help="Print doctor results as JSON.")
+
+    p_imp = sub.add_parser("import", help="Import a JSON document.")
+    p_imp.add_argument("path")
+
+    p_exp = sub.add_parser("export", help="Export a JSON document.")
+    p_exp.add_argument("path")
+
     return parser
 
 
@@ -234,6 +244,25 @@ def main(argv: Sequence[str] | None = None) -> int:
 
         if args.cmd == "gate":
             return _cmd_gate(args)
+
+        if args.cmd == "doctor":
+            from temporallock.doctor import run_doctor
+
+            return run_doctor(as_json=getattr(args, "as_json", False))
+
+        if args.cmd == "import":
+            from temporallock.jsonio import import_json
+
+            rec = import_json(args.path)
+            sys.stdout.write(json.dumps(rec, indent=2, ensure_ascii=False) + "\n")
+            return 0
+
+        if args.cmd == "export":
+            from temporallock.jsonio import export_json
+
+            rec = export_json(args.path)
+            sys.stdout.write(json.dumps(rec, indent=2, ensure_ascii=False) + "\n")
+            return 0
 
         parser.error(f"unknown command {args.cmd}")
         return 2

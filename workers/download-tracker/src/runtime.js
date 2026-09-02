@@ -7,6 +7,8 @@ const PRODUCT = "temporallock";
 const VERSION = "0.1.0";
 const MOTTO = "Receipts, not truth claims.";
 const HOST = "https://temporallock-download-tracker.vibelock.workers.dev";
+const SKILL = "---\nname: TemporalLock\ndescription: Use when minting or verifying append-only observation receipts. Receipts, not truth claims. Hosted API is stateless. Hosted /v1 via this Worker or aziel-runtime. Author Aziel Eliab.\n---\n\n# TemporalLock\n\nReceipts, not truth claims.\n\nAuthor: **Aziel Eliab**.\n\nUse when minting or verifying append-only observation receipts. Receipts, not truth claims. Hosted API is stateless.\n\nAlways send `User-Agent: Mozilla/5.0`. Cloudflare Workers may 403 an empty agent.\n\n## Endpoints (this Worker)\n\nHost: `https://temporallock-download-tracker.vibelock.workers.dev`\n\n| Method | Path | What |\n|--------|------|------|\n| GET | `/v1/health` | Liveness. Does not increment downloads. |\n| GET | `/v1/skill` | This markdown. Does not increment downloads. |\n| POST | `/v1/genesis` | Start a chain. Body includes summary + evidence. |\n| POST | `/v1/append` | Append a receipt. Client sends the chain. |\n| POST | `/v1/verify` | Verify hashes and prev links. Not stored. |\n| POST | `/v1/gate` | File-gate preview (hash + receipt). |\n\nOpenAPI: `https://temporallock-download-tracker.vibelock.workers.dev/openapi.json`\n\nCatalog OpenAPI: `https://aziel-runtime.vibelock.workers.dev/openapi.json`\n\nMCP: `POST https://aziel-runtime.vibelock.workers.dev/mcp`\n\nCatalog aliases under `/p/temporallock/\u2026`.\n\n## How to call (Mozilla/5.0)\n\n```bash\ncurl -s -A 'Mozilla/5.0' https://temporallock-download-tracker.vibelock.workers.dev/v1/health\ncurl -s -A 'Mozilla/5.0' -X POST https://temporallock-download-tracker.vibelock.workers.dev/v1/genesis \\\n  -H 'content-type: application/json' \\\n  -d '{\"summary\":\"desk closed\",\"evidence\":\"log row\"}'\ncurl -s -A 'Mozilla/5.0' https://temporallock-download-tracker.vibelock.workers.dev/v1/skill\n```\n\nGrok: import the catalog OpenAPI as a custom tool. ChatGPT: GPT Actions. Venice: HTTP tools.\n\n## Local (after one-click install)\n\n```bash\ncurl -fsSL https://temporallock-download-tracker.vibelock.workers.dev/install.sh | bash\ntemporallock ui\n```\n\nThen open http://127.0.0.1:8766 (this computer only).\n\n## Honest banner\n\nTHIS IS: append-only observation receipts with evidence and confidence. THIS IS NOT: a truth score, court, narrative engine, or authority. The Worker does not store chains. Author Aziel Eliab.\n\nDOI: https://doi.org/10.5281/zenodo.21431405  \nRecord: https://zenodo.org/records/21431405\n\nApache-2.0 (or the repo LICENSE). Forks are welcome and always allowed.\n";
+
 const GENESIS_PREV_HASH = "0".repeat(64);
 const CONFIDENCE_DECIMALS = 6;
 const CONF_PLACEHOLDER = "__TL_CONFIDENCE__";
@@ -272,7 +274,15 @@ function openapiSpec() {
     },
     servers: [{ url: HOST }],
     paths: {
-      "/v1/health": {
+      
+      "/v1/skill": {
+        get: {
+          operationId: "temporallock_skill",
+          summary: "Return skill markdown. Does not increment download KV.",
+          responses: { "200": { description: "markdown" } },
+        },
+      },
+"/v1/health": {
         get: { operationId: "health", summary: "Liveness", responses: { "200": { description: "ok", content: { "application/json": { schema: { type: "object" } } } } } },
       },
       "/v1/genesis": {
@@ -350,6 +360,12 @@ export async function handleRuntimeApi(request, url) {
     if (path === "/v1/health" && request.method === "GET") {
       return json({ ok: true, product: PRODUCT, version: VERSION });
     }
+    if (path === "/v1/skill" && request.method === "GET") {
+      return new Response(SKILL, {
+      status: 200,
+      headers: { "Content-Type": "text/markdown; charset=utf-8", "Cache-Control": "private, no-store", ...corsHeaders() },
+      });
+  }
     if (path === "/openapi.json" && request.method === "GET") return json(openapiSpec());
     if (path === "/ai" && request.method === "GET") {
       return new Response(aiHtml(), { headers: { "Content-Type": "text/html; charset=utf-8", ...corsHeaders() } });
