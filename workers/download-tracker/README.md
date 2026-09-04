@@ -1,6 +1,7 @@
 # temporallock download tracker
 
 Isolated Worker `temporallock-download-tracker`. Project `temporallock`.
+v0.2.0 serves the timeslate lattice runtime (StaticClock cross-hash).
 KV namespace `TEMPORALLOCK_DOWNLOADS` bound as `DOWNLOADS`.
 Does **not** 302 to GitHub on `/download`. Serves gzip via `ASSETS.fetch`,
 `Cache-Control: private, no-store`.

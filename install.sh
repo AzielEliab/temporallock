@@ -4,7 +4,7 @@
 set -euo pipefail
 
 HOST="${TEMPORALLOCK_HOME_HOST:-https://temporallock-download-tracker.vibelock.workers.dev}"
-ASSET="${TEMPORALLOCK_HOME_ASSET:-temporallock-0.1.0.tar.gz}"
+ASSET="${TEMPORALLOCK_HOME_ASSET:-temporallock-0.2.0.tar.gz}"
 WORKDIR="${TEMPORALLOCK_HOME:-$HOME/temporallock}"
 
 mkdir -p "$WORKDIR"

@@ -1,8 +1,9 @@
-"""Append-only receipt chain.
+"""Append-only timeslate lattice (receipt chain + StaticClock bind).
 
 ``chain.append(...)`` only. No modify, no delete. Corrections and
 disputes are new receipts. Divergent chains (forks) are valid and
-detectable; this module does not pick a winner.
+detectable; this module does not pick a winner. A decreasing
+StaticClock click_index is a rollback and is refused.
 """
 
 from __future__ import annotations
@@ -10,11 +11,12 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Iterator, Sequence
+from typing import Any, Iterator, Mapping, Sequence
 
 from temporallock.errors import AppendOnlyError, ChainError
 from temporallock.hashing import GENESIS_PREV_HASH
 from temporallock.receipt import Receipt
+from temporallock.timeslate import LatticeResult, bind_timeslate, verify_lattice
 
 
 @dataclass(frozen=True)
@@ -155,8 +157,11 @@ class Chain:
         evidence: str,
         confidence: float = 1.0,
         timestamp: str | None = None,
+        staticclock_click: str | None = None,
+        click_index: int | None = None,
+        click_payload: Mapping[str, Any] | None = None,
     ) -> "Chain":
-        """Create the first receipt in a new JSONL file. File must be absent or empty."""
+        """Create the first timeslate in a new JSONL file. File must be absent or empty."""
         path = Path(path)
         if path.exists() and path.stat().st_size > 0:
             raise ChainError(f"chain already exists: {path}; use append")
@@ -166,6 +171,9 @@ class Chain:
             evidence=evidence,
             confidence=confidence,
             timestamp=timestamp,
+            staticclock_click=staticclock_click,
+            click_index=click_index,
+            click_payload=click_payload,
         )
         return chain
 
@@ -177,18 +185,21 @@ class Chain:
         timestamp: str | None = None,
         *,
         require_existing: bool = False,
+        staticclock_click: str | None = None,
+        click_index: int | None = None,
+        click_payload: Mapping[str, Any] | None = None,
+        bind_lattice: bool = True,
     ) -> Receipt:
-        """Append a new receipt. First receipt is genesis (prev_hash = 64 zeros).
+        """Append a new timeslate. First receipt is genesis (prev_hash = 64 zeros).
 
         If ``require_existing`` is true (CLI ``append``), the chain must
-        already contain at least one receipt.
+        already contain at least one receipt. A decreasing StaticClock
+        ``click_index`` is a rollback and raises ``LatticeError``.
         """
         if require_existing and not self._receipts:
             raise ChainError("chain does not exist or is empty; use genesis")
-        if self._receipts:
-            prev = self._receipts[-1].hash
-        else:
-            prev = GENESIS_PREV_HASH
+        prev_rec = self._receipts[-1] if self._receipts else None
+        prev = prev_rec.hash if prev_rec is not None else GENESIS_PREV_HASH
         receipt = Receipt.create(
             summary=summary,
             evidence=evidence,
@@ -196,6 +207,14 @@ class Chain:
             timestamp=timestamp,
             prev_hash=prev,
         )
+        if bind_lattice:
+            receipt = bind_timeslate(
+                receipt,
+                prev=prev_rec,
+                staticclock_click=staticclock_click,
+                click_index=click_index,
+                click_payload=click_payload,
+            )
         if self._path is not None:
             _append_line(self._path, receipt)
         self._receipts = self._receipts + (receipt,)
@@ -235,6 +254,11 @@ class Chain:
             last_hash=last,
             errors=errors,
         )
+
+    def lattice(self) -> LatticeResult:
+        """Verify receipt links plus StaticClock timeslate binds. No rollbacks."""
+        receipts = self.verify()
+        return verify_lattice(self._receipts, receipt_errors=receipts.errors)
 
     def forks(self) -> list[Fork]:
         """prev_hash values with more than one child. Does not pick a winner."""

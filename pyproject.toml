@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "temporallock"
-version = "0.1.0"
-description = "Append-only observation receipts with cryptographic linking — receipts, not truth claims (TemporalLock, July 2026)."
+version = "0.2.0"
+description = "Immutable timeslate lattice hash-chained against StaticClock — AZ-OS integrity log. Receipts, not truth claims (TemporalLock, Aziel Eliab)."
 readme = "README.md"
 license = {file = "LICENSE"}
 authors = [{name = "Aziel Eliab"}]
@@ -14,6 +14,10 @@ keywords = [
     "receipts",
     "append-only",
     "hash-chain",
+    "timeslate",
+    "lattice",
+    "staticclock",
+    "azos",
     "observations",
     "evidence",
     "forks",

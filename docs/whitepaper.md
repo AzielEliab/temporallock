@@ -22,7 +22,9 @@ chains (forks) are valid and detectable. The system does not pick a
 winner, does not mine, does not issue tokens, and does not score truth.
 
 This document is the specification implemented by the `temporallock`
-Python package, version 0.1.0. Forks are welcome and always allowed.
+Python package. v0.1.0 is the core receipt hash contract. v0.2.0 adds
+the timeslate lattice (StaticClock cross-hash) without changing that
+contract. Forks are welcome and always allowed.
 
 ---
 
@@ -211,5 +213,42 @@ this spec.
 
 ---
 
+## 5. v0.2.0 timeslate lattice (StaticClock × AZ-OS)
+
+v0.2.0 elevates TemporalLock to an **immutable timeslate lattice**
+hash-chained against the StaticClock gear-click timeline.
+
+A **timeslate** is a receipt plus a StaticClock bind. The v0.1.0 core
+hash is unchanged. Lattice extras are stored on the JSONL line and
+hashed separately:
+
+```
+timeslate_hash = SHA-256(canonical{
+  click_index,
+  prev_timeslate_hash,
+  receipt_hash,
+  staticclock_click
+})
+```
+
+`staticclock_click` is a local SHA-256 of a StaticClock-shaped
+gear-click object (`product` forced to `staticclock`). TemporalLock
+does not call StaticClock and does not schedule. A decreasing
+`click_index` is a rollback and is refused. The same index is a fork
+on one gear-click and is allowed.
+
+**AZ-OS integrity role (honest).** AZ-OS is a portable ethical overlay
+whose prefab hooks may write this lattice. TemporalLock is that
+integrity log. It is not a kernel, not a remote shell, and not an
+execution engine. Hosted `/v1` does not run AZ-OS and does not store
+chains. Verification remains mechanical: hashes and links, not truth.
+
+CLI additions: `temporallock lattice`, `temporallock timeslate`,
+`temporallock click`.
+
+Author remains **Aziel Eliab** only.
+
+---
+
 Aziel Eliab
-July 2026
+July 2026 · lattice addendum September 2026

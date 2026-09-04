@@ -37,11 +37,35 @@ def test_ui_get_root_200_contains_temporallock() -> None:
             html = resp.read()
         assert b"TemporalLock" in html
         assert b"receipts" in html.lower()
+        assert b"timeslate" in html.lower()
+        assert b"StaticClock" in html
         assert b"127.0.0.1" in html
         with urllib.request.urlopen(f"http://127.0.0.1:{port}/health", timeout=5) as resp:
             payload = json.loads(resp.read().decode("utf-8"))
         assert payload["ok"] is True
         assert payload["bind_host"] == "127.0.0.1"
+        assert payload["author"] == "Aziel Eliab"
+        assert payload["role"] == "immutable timeslate lattice"
+        req = urllib.request.Request(
+            f"http://127.0.0.1:{port}/api/genesis",
+            data=json.dumps({"summary": "desk", "evidence": "log", "confidence": 1.0, "click_index": 0}).encode(),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            minted = json.loads(resp.read().decode("utf-8"))
+        assert minted["receipts"]
+        assert minted["receipts"][0]["timeslate_hash"]
+        req = urllib.request.Request(
+            f"http://127.0.0.1:{port}/api/lattice",
+            data=b"{}",
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            lat = json.loads(resp.read().decode("utf-8"))
+        assert lat["lattice"]["ok"] is True
+        assert lat["lattice"]["cross_hash"] is True
     finally:
         httpd.shutdown()
         httpd.server_close()
