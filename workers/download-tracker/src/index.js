@@ -14,7 +14,7 @@ import { handleRuntimeApi } from "./runtime.js";
  */
 
 const PROJECT = "temporallock";
-const DEFAULT_ASSET = "temporallock-0.1.0.tar.gz";
+const DEFAULT_ASSET = "temporallock-0.2.0.tar.gz";
 const DEFAULT_OWNER = "AzielEliab";
 const DEFAULT_REPO = "temporallock";
 const DEFAULT_BRANCH = "main";
@@ -333,8 +333,8 @@ async function indexHtml(env) {
 </style>
 <body>
   <h1>TemporalLock</h1>
-  <p class="motto">Receipts, not truth claims. Author Aziel Eliab.</p>
-  <p class="banner">THIS IS: append-only observation receipts with evidence and confidence. THIS IS NOT: a truth score, court, narrative engine, or authority. The Worker does not store chains. Author Aziel Eliab.</p>
+  <p class="motto">Immutable timeslate lattice. Receipts, not truth claims. Author Aziel Eliab.</p>
+  <p class="banner">THIS IS: an immutable timeslate lattice hash-chained against the StaticClock gear-click timeline, used as the AZ-OS integrity log. THIS IS NOT: a kernel, scheduler, truth score, court, or remote shell. The Worker does not store chains and does not run AZ-OS. Author Aziel Eliab.</p>
   <div class="card">
     <div class="nums">
       <p class="count">${v}<span>Views</span></p>
@@ -350,8 +350,9 @@ async function indexHtml(env) {
     <p class="meta">The download count ticks on the Download click. The Worker serves the gzip (HTTP 200). No 302 to GitHub. Forks using this same link are counted automatically. ${DEFAULT_ASSET} — ${n} counted.</p>
     <p class="iso">Isolated counter: Worker <code>temporallock-download-tracker</code>, project <code>${PROJECT}</code>, KV <code>TEMPORALLOCK_DOWNLOADS</code>. Not mixed with any other product. /v1 does not increment downloads.</p>
     <p class="meta">GitHub: stars ${gh.stars || 0} · forks ${gh.forks || 0} · watchers ${gh.watchers || 0} · release assets ${gh.release_download_count || 0}</p>
+    <p class="meta">Cross-hash: <a href="https://staticclock-download-tracker.vibelock.workers.dev/">StaticClock</a> gear-click timeline (no rollbacks). Integrity role: <a href="https://azos-download-tracker.vibelock.workers.dev/">AZ-OS</a> prefab hooks write this lattice — TemporalLock does not execute software.</p>
     <p class="meta">Paper: <a href="${DOI}">doi:10.5281/zenodo.21431405</a> · <a href="${ZENODO}">Zenodo</a> · Apache-2.0 · Eliab, Aziel</p>
-    <p class="meta"><a href="/stats">JSON stats</a> · <a href="/openapi.json">OpenAPI</a> · <a href="/v1/skill">Skill</a> · <a href="/ai">AI runtime</a> · <a href="${GITHUB_REPO}">GitHub</a> · <a href="${GITHUB_LATEST}">releases</a></p>
+    <p class="meta"><a href="/stats">JSON stats</a> · <a href="/openapi.json">OpenAPI</a> · <a href="/v1/skill">Skill</a> · <a href="/v1/example">Example</a> · <a href="/ai">AI runtime</a> · <a href="${GITHUB_REPO}">GitHub</a> · <a href="${GITHUB_LATEST}">releases</a></p>
     <script>
       (function () {
         var cmd = "curl -fsSL https://temporallock-download-tracker.vibelock.workers.dev/install.sh | bash";

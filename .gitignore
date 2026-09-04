@@ -3,6 +3,8 @@ __pycache__/
 *.pyc
 dist/
 *.egg-info/
+temporallock.egg-info/
+.temporallock-state.json
 .pytest_cache/
 examples/_out
 node_modules/

@@ -130,6 +130,9 @@ def test_help_lists_ui_and_version() -> None:
     assert "ui" in text
     assert "version" in text
     assert "gate" in text
+    assert "lattice" in text
+    assert "timeslate" in text
+    assert "click" in text
     assert "127.0.0.1:8766" in text or "temporallock ui" in text
 
 
@@ -152,6 +155,53 @@ def test_cli_gate_hashes_and_accepts(tmp_path: Path, capsys) -> None:
     assert payload["length"] == 2
     assert payload["file_sha256"]
     assert payload["action"] == "appended"
+
+
+def test_cli_lattice_and_timeslate(tmp_path: Path, capsys) -> None:
+    path = tmp_path / "notes.jsonl"
+    rc = main(
+        [
+            "timeslate",
+            "--chain",
+            str(path),
+            "--summary",
+            "hook",
+            "--evidence",
+            "azos:prefab",
+            "--timestamp",
+            "2026-07-12T14:30:00Z",
+            "--click-index",
+            "0",
+        ]
+    )
+    assert rc == 0
+    out = capsys.readouterr().out
+    assert "genesis" in out
+    assert "timeslate" in out
+    rc = main(["lattice", str(path)])
+    payload = __import__("json").loads(capsys.readouterr().out)
+    assert rc == 0
+    assert payload["ok"] is True
+    assert payload["cross_hash"] is True
+    assert payload["bound"] == 1
+
+
+def test_cli_click(capsys) -> None:
+    rc = main(["click", "--timestamp", "2026-07-12T14:30:00Z", "--click-index", "0"])
+    assert rc == 0
+    payload = __import__("json").loads(capsys.readouterr().out)
+    assert payload["staticclock_click"]
+    assert len(payload["staticclock_click"]) == 64
+    assert payload["author"] == "Aziel Eliab"
+
+
+def test_cli_doctor(capsys) -> None:
+    rc = main(["doctor", "--json"])
+    payload = __import__("json").loads(capsys.readouterr().out)
+    assert rc == 0
+    assert payload["ok"] is True
+    assert payload["author"] == "Aziel Eliab"
+    assert payload["role"] == "immutable timeslate lattice"
 
 
 def test_cli_gate_missing_file(tmp_path: Path, capsys) -> None:

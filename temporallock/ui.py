@@ -14,6 +14,7 @@ from urllib.parse import urlparse
 from temporallock import __version__
 from temporallock.chain import Chain
 from temporallock.errors import TemporalLockError
+from temporallock.timeslate import AZOS_HOST, HONEST_SCOPE, ROLE, STATICCLOCK_HOST
 
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8766
@@ -95,14 +96,17 @@ PAGE = r"""<!DOCTYPE html>
 </head>
 <body>
   <header>
-    <div class="tag">TemporalLock · __VERSION__ · loopback · receipts</div>
+    <div class="tag">TemporalLock · __VERSION__ · timeslate lattice · loopback</div>
     <h1>TemporalLock</h1>
-    <p class="motto">Receipts, not truth claims.</p>
+    <p class="motto">Immutable timeslate lattice. Receipts, not truth claims.</p>
     <p class="lede">
-      Genesis, append, and verify a local observation chain in a temporary directory
-      owned by this process. A receipt records that something was observed. It is not
-      a verdict, not a score of truth, and not an official history. Bound to 127.0.0.1 only.
+      Genesis, append, and verify a local timeslate lattice in a temporary directory
+      owned by this process. Each timeslate is a receipt hash-chained against a
+      StaticClock gear-click. No rollbacks. This is the AZ-OS integrity log —
+      prefab hooks may write here. It is not a kernel, not a scheduler, and not a
+      truth score. Bound to 127.0.0.1 only.
     </p>
+    <p class="lede">StaticClock: __STATICCLOCK__ · AZ-OS: __AZOS__</p>
   </header>
 
   <form id="receipt-form" autocomplete="off">
@@ -114,24 +118,27 @@ PAGE = r"""<!DOCTYPE html>
       <textarea id="evidence" rows="3" placeholder="photo:./sky.jpg"></textarea>
       <label for="confidence"><span class="kicker">Confidence</span> Observer-assigned float in [0, 1].</label>
       <input id="confidence" type="number" min="0" max="1" step="0.01" value="0.7">
+      <label for="click-index"><span class="kicker">StaticClock click index</span> Optional. Must not decrease (no rollbacks).</label>
+      <input id="click-index" type="number" min="0" step="1" placeholder="auto">
     </fieldset>
     <div class="actions">
       <button type="button" id="genesis">Genesis</button>
       <button type="button" id="append">Append</button>
       <button type="button" class="ghost" id="verify">Verify</button>
+      <button type="button" class="ghost" id="lattice">Lattice</button>
       <label class="ghost">Import JSON <input type="file" id="import-json" accept="application/json,.json,.jsonl"></label>
       <button type="button" class="ghost" id="export">Export JSON receipts</button>
     </div>
   </form>
 
-  <div id="banner" class="banner">No receipts yet. Genesis writes the first receipt.</div>
-  <h2>Receipts</h2>
+  <div id="banner" class="banner">No timeslates yet. Genesis writes the first lattice node.</div>
+  <h2>Timeslates</h2>
   <ol id="list"></ol>
   <p class="err" id="err" hidden></p>
 
   <footer>
-    <p>Apache-2.0 · Aziel Eliab · July 2026 · Bound to 127.0.0.1 · <code>temporallock ui</code></p>
-    <p class="foot-note">Receipts, not truth claims. Forks welcome and always allowed.</p>
+    <p>Apache-2.0 · Aziel Eliab · Bound to 127.0.0.1 · <code>temporallock ui</code></p>
+    <p class="foot-note">Immutable timeslate lattice × StaticClock. AZ-OS integrity log, not a kernel. Forks welcome.</p>
   </footer>
 <script>
 (function () {
@@ -139,11 +146,14 @@ PAGE = r"""<!DOCTYPE html>
   let last = null;
   function fail(msg) { $("err").hidden = false; $("err").textContent = msg; }
   function fields() {
-    return {
+    const idx = $("click-index").value;
+    const body = {
       summary: $("summary").value,
       evidence: $("evidence").value,
       confidence: Number($("confidence").value),
     };
+    if (idx !== "") body.click_index = Number(idx);
+    return body;
   }
   function draw(data) {
     last = data;
@@ -163,7 +173,11 @@ PAGE = r"""<!DOCTYPE html>
         + "<p>" + (rec.summary || "") + "</p>"
         + "<p>" + (rec.evidence || "") + " · conf " + rec.confidence + "</p>"
         + "<p class='hash'>hash " + rec.hash + "</p>"
-        + "<p class='hash'>prev " + rec.prev_hash + "</p>";
+        + "<p class='hash'>prev " + rec.prev_hash + "</p>"
+        + (rec.timeslate_hash
+          ? ("<p class='hash'>timeslate " + rec.timeslate_hash + " · click " + rec.click_index + "</p>"
+             + "<p class='hash'>staticclock_click " + rec.staticclock_click + "</p>")
+          : "");
       ol.appendChild(li);
     });
   }
@@ -189,6 +203,9 @@ PAGE = r"""<!DOCTYPE html>
   };
   $("verify").onclick = async () => {
     try { draw(await post("/api/verify", {})); } catch (e) { fail(String(e.message || e)); }
+  };
+  $("lattice").onclick = async () => {
+    try { draw(await post("/api/lattice", {})); } catch (e) { fail(String(e.message || e)); }
   };
   $("import-json").onchange = async () => {
     const f = $("import-json").files && $("import-json").files[0];
@@ -217,7 +234,7 @@ PAGE = r"""<!DOCTYPE html>
 </script>
 </body>
 </html>
-""".replace("__VERSION__", __version__)
+""".replace("__VERSION__", __version__).replace("__STATICCLOCK__", STATICCLOCK_HOST).replace("__AZOS__", AZOS_HOST)
 
 
 class TemporalServer(ThreadingHTTPServer):
@@ -233,6 +250,7 @@ class TemporalServer(ThreadingHTTPServer):
 
 def _payload(chain: Chain, message: str) -> dict[str, Any]:
     verify = chain.verify()
+    lattice = chain.lattice()
     return {
         "message": message,
         "receipts": [rec.to_dict() for rec in chain],
@@ -243,7 +261,18 @@ def _payload(chain: Chain, message: str) -> dict[str, Any]:
             "last_hash": verify.last_hash,
             "errors": list(verify.errors),
         },
-        "note": "Receipts, not truth claims.",
+        "lattice": {
+            "ok": lattice.ok,
+            "bound": lattice.bound,
+            "cross_hash": lattice.cross_hash,
+            "last_timeslate_hash": lattice.last_timeslate_hash,
+            "last_click_index": lattice.last_click_index,
+            "errors": list(lattice.errors),
+        },
+        "role": ROLE,
+        "staticclock": STATICCLOCK_HOST,
+        "azos": AZOS_HOST,
+        "note": HONEST_SCOPE,
     }
 
 
@@ -252,7 +281,11 @@ def _empty(message: str) -> dict[str, Any]:
         "message": message,
         "receipts": [],
         "verify": {"ok": True, "length": 0, "first_hash": None, "last_hash": None, "errors": []},
-        "note": "Receipts, not truth claims.",
+        "lattice": {"ok": True, "bound": 0, "cross_hash": False, "last_timeslate_hash": None, "last_click_index": None, "errors": []},
+        "role": ROLE,
+        "staticclock": STATICCLOCK_HOST,
+        "azos": AZOS_HOST,
+        "note": HONEST_SCOPE,
     }
 
 
@@ -296,14 +329,23 @@ class Handler(BaseHTTPRequestHandler):
             self._send(200, PAGE.encode("utf-8"), "text/html; charset=utf-8")
             return
         if path == "/health":
-            self._json(200, {"ok": True, "bind_host": DEFAULT_HOST, "name": "TemporalLock"})
+            self._json(200, {
+                "ok": True,
+                "bind_host": DEFAULT_HOST,
+                "name": "TemporalLock",
+                "author": "Aziel Eliab",
+                "version": __version__,
+                "role": ROLE,
+                "staticclock": STATICCLOCK_HOST,
+                "azos": AZOS_HOST,
+            })
             return
         if path == "/api/chain":
             chain = self._load()
             if chain is None:
-                self._json(200, _empty("No receipts yet. Genesis writes the first receipt."))
+                self._json(200, _empty("No timeslates yet. Genesis writes the first lattice node."))
                 return
-            self._json(200, _payload(chain, "Current receipts on the local chain."))
+            self._json(200, _payload(chain, "Current timeslates on the local lattice."))
             return
         self._json(404, {"error": "not found"})
 
@@ -313,20 +355,45 @@ class Handler(BaseHTTPRequestHandler):
             if path == "/api/verify":
                 chain = self._load()
                 if chain is None:
-                    self._json(200, _empty("No receipts to verify."))
+                    self._json(200, _empty("No timeslates to verify."))
                     return
                 result = chain.verify()
                 msg = "Chain intact." if result.ok else "Broken links or hashes in these receipts."
+                self._json(200, _payload(chain, msg))
+                return
+            if path == "/api/lattice":
+                chain = self._load()
+                if chain is None:
+                    self._json(200, _empty("No timeslates to walk."))
+                    return
+                result = chain.lattice()
+                msg = (
+                    "Lattice intact · StaticClock cross-hash · no rollbacks."
+                    if result.ok
+                    else "Lattice errors: " + "; ".join(result.errors)
+                )
                 self._json(200, _payload(chain, msg))
                 return
             body = self._read_json()
             summary = str(body.get("summary") or "")
             evidence = str(body.get("evidence") or "")
             confidence = float(body.get("confidence") if body.get("confidence") is not None else 0.7)
+            click_index = body.get("click_index")
+            if click_index is not None and click_index != "":
+                click_index = int(click_index)
+            else:
+                click_index = None
             dest = self._chain_path()
             if path == "/api/genesis":
-                chain = Chain.genesis(dest, summary=summary, evidence=evidence, confidence=confidence)
-                self._json(200, _payload(chain, "Genesis receipt written. Receipts, not truth claims."))
+                chain = Chain.genesis(
+                    dest,
+                    summary=summary,
+                    evidence=evidence,
+                    confidence=confidence,
+                    staticclock_click=body.get("staticclock_click") or None,
+                    click_index=click_index,
+                )
+                self._json(200, _payload(chain, "Genesis timeslate written. Receipts, not truth claims."))
                 return
             if path == "/api/import":
                 receipts = body.get("receipts")
@@ -339,11 +406,11 @@ class Handler(BaseHTTPRequestHandler):
                     encoding="utf-8",
                 )
                 chain = Chain.load(dest)
-                self._json(200, _payload(chain, "Imported receipts. Receipts, not truth claims."))
+                self._json(200, _payload(chain, "Imported timeslates. Receipts, not truth claims."))
                 return
             if path == "/api/append":
                 if not dest.is_file() or dest.stat().st_size == 0:
-                    self._json(400, {"error": "chain does not exist; use genesis for the first receipt"})
+                    self._json(400, {"error": "chain does not exist; use genesis for the first timeslate"})
                     return
                 chain = Chain.load(dest)
                 chain.append(
@@ -351,8 +418,10 @@ class Handler(BaseHTTPRequestHandler):
                     evidence=evidence,
                     confidence=confidence,
                     require_existing=True,
+                    staticclock_click=body.get("staticclock_click") or None,
+                    click_index=click_index,
                 )
-                self._json(200, _payload(chain, "Receipt appended. Receipts, not truth claims."))
+                self._json(200, _payload(chain, "Timeslate appended. StaticClock click locked forward."))
                 return
         except TemporalLockError as exc:
             self._json(400, {"error": str(exc)})
@@ -376,7 +445,7 @@ def make_server(host: str = DEFAULT_HOST, port: int = DEFAULT_PORT) -> TemporalS
 def serve(host: str = DEFAULT_HOST, port: int = DEFAULT_PORT) -> None:
     httpd = make_server(host, port)
     sys.stdout.write(f"TemporalLock UI  http://{host}:{port}/\n")
-    sys.stdout.write("Local only. Receipts, not truth claims. Chain lives in a process tmp dir.\n")
+    sys.stdout.write("Local only. Timeslate lattice × StaticClock. AZ-OS integrity log, not a kernel.\n")
     sys.stdout.flush()
     try:
         httpd.serve_forever()

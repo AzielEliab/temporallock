@@ -2,4 +2,15 @@ include SKILL.md
 include install.sh
 include LICENSE
 include README.md
+include CONTRIBUTING.md
 include pyproject.toml
+graft temporallock
+graft tests
+graft docs
+graft examples
+graft mobile
+prune workers
+prune .git
+global-exclude *.pyc
+global-exclude __pycache__
+global-exclude *.egg-info

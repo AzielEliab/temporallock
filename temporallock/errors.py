@@ -17,3 +17,7 @@ class ReceiptError(TemporalLockError):
 
 class ChainError(TemporalLockError):
     """Raised for chain-level problems (missing genesis, append on empty file)."""
+
+
+class LatticeError(TemporalLockError):
+    """Raised when a timeslate would roll back the StaticClock gear-click timeline."""

@@ -1,7 +1,7 @@
 name: temporallock
-description: On-device genesis / append / verify. Receipts, not truth claims.
+description: On-device timeslate lattice hash-chained against StaticClock. Receipts, not truth claims.
 publish_to: "none"
-version: 0.1.0+1
+version: 0.2.0+1
 
 environment:
   sdk: ">=3.3.0 <4.0.0"

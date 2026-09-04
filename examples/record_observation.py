@@ -42,9 +42,12 @@ def main() -> None:
 
     result = chain.verify()
     assert result.ok, result.errors
+    lattice = chain.lattice()
+    assert lattice.ok and lattice.cross_hash, lattice.errors
     assert chain[0].hash == first.hash
     print(f"wrote {CHAIN} n={len(chain)} last={result.last_hash}")
-    print("receipts, not truth claims")
+    print(f"timeslate bound={lattice.bound} last_click={lattice.last_click_index}")
+    print("immutable timeslate lattice. receipts, not truth claims")
 
 
 if __name__ == "__main__":

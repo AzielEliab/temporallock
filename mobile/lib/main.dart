@@ -135,13 +135,14 @@ class _ChainPageState extends State<ChainPage> {
         padding: const EdgeInsets.all(16),
         children: [
           const Text(
-            'Receipts, not truth claims.',
+            'Immutable timeslate lattice. Receipts, not truth claims.',
             style: TextStyle(color: kGold, fontStyle: FontStyle.italic, fontSize: 16),
           ),
           const SizedBox(height: 8),
           const Text(
-            'On-device append-only chain. A receipt is an observation note, '
-            'not a verdict. Corrections are new receipts. No modify, no delete.',
+            'On-device append-only lattice. A timeslate is a receipt bound to '
+            'a StaticClock gear-click. Not a verdict, not a kernel. '
+            'Corrections are new timeslates. No modify, no delete, no rollbacks.',
           ),
           const SizedBox(height: 16),
           TextField(controller: _summary, decoration: const InputDecoration(labelText: 'Summary')),

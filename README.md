@@ -1,14 +1,16 @@
 # TemporalLock
 
-Open-source, append-only system for recording observations at specific
-moments — with evidence and confidence — without imposing narrative,
-authority, or interpretive claims.
+Open-source **immutable timeslate lattice** — append-only observation
+receipts hash-chained against the [StaticClock](https://github.com/AzielEliab/staticclock)
+gear-click timeline (no rollbacks). This is the **AZ-OS integrity log**:
+prefab OS hooks may write timeslates here. TemporalLock does not run a
+kernel, does not schedule, and does not score truth.
 
 **Author:** Aziel Eliab
-**Date:** July 2026
+**Date:** July 2026 · lattice v0.2.0
 **License:** [Apache-2.0](LICENSE)
 
-> Receipts, not truth claims.
+> Immutable timeslate lattice. Receipts, not truth claims.
 
 See the spec: [docs/whitepaper.md](docs/whitepaper.md).
 How to contribute: [CONTRIBUTING.md](CONTRIBUTING.md).
@@ -42,7 +44,7 @@ https://temporallock-download-tracker.vibelock.workers.dev/
 The Worker serves the gzip itself (HTTP 200, no 302 to GitHub).
 
 - Homepage: [https://temporallock-download-tracker.vibelock.workers.dev/](https://temporallock-download-tracker.vibelock.workers.dev/)
-- Direct tarball: [temporallock-0.1.0.tar.gz](https://temporallock-download-tracker.vibelock.workers.dev/download?asset=temporallock-0.1.0.tar.gz)
+- Direct tarball: [temporallock-0.2.0.tar.gz](https://temporallock-download-tracker.vibelock.workers.dev/download?asset=temporallock-0.2.0.tar.gz)
 - One-click install: [https://temporallock-download-tracker.vibelock.workers.dev/install.sh](https://temporallock-download-tracker.vibelock.workers.dev/install.sh)
 - Skill: [https://temporallock-download-tracker.vibelock.workers.dev/v1/skill](https://temporallock-download-tracker.vibelock.workers.dev/v1/skill)
 - OpenAPI: [https://temporallock-download-tracker.vibelock.workers.dev/openapi.json](https://temporallock-download-tracker.vibelock.workers.dev/openapi.json)
@@ -55,7 +57,13 @@ Open http://127.0.0.1:8766 (loopback only). No CDN, no telemetry.
 
 Counted download: [https://temporallock-download-tracker.vibelock.workers.dev/](https://temporallock-download-tracker.vibelock.workers.dev/)
 
-File gate: `temporallock gate FILE` hashes the file, appends a receipt, and verifies before treating it as accepted.
+File gate: `temporallock gate FILE` hashes the file, appends a timeslate bound to a StaticClock click, and verifies the lattice before treating it as accepted.
+
+**StaticClock** (gear-click timeline, no rollbacks): [https://staticclock-download-tracker.vibelock.workers.dev/](https://staticclock-download-tracker.vibelock.workers.dev/)
+
+**AZ-OS** (prefab OS hooks; integrity precedes execution): [https://azos-download-tracker.vibelock.workers.dev/](https://azos-download-tracker.vibelock.workers.dev/)
+
+Honest AZ-OS role: TemporalLock is the integrity lattice those hooks write into. Hosted `/v1` does not execute software, does not halt a kernel, and does not store chains.
 
 
 
@@ -72,7 +80,7 @@ The big button on that page is the download. The number next to it is
 anything else. Clicking it increments the counter. Nobody reports
 anything. Forks that use the same link are counted too.
 
-Direct tarball (also counted): [temporallock-0.1.0.tar.gz](https://temporallock-download-tracker.vibelock.workers.dev/download?asset=temporallock-0.1.0.tar.gz)
+Direct tarball (also counted): [temporallock-0.2.0.tar.gz](https://temporallock-download-tracker.vibelock.workers.dev/download?asset=temporallock-0.2.0.tar.gz)
 
 - Live count JSON: [https://temporallock-download-tracker.vibelock.workers.dev/count](https://temporallock-download-tracker.vibelock.workers.dev/count)
 - Stats: [https://temporallock-download-tracker.vibelock.workers.dev/stats](https://temporallock-download-tracker.vibelock.workers.dev/stats)
@@ -85,14 +93,14 @@ Direct tarball (also counted): [temporallock-0.1.0.tar.gz](https://temporallock-
 
 `temporallock ui` serves a loopback dashboard at http://127.0.0.1:8766
 
-Binds to `127.0.0.1` only. Self-contained HTML (no CDN). Genesis / append / verify a local chain in a process tmp dir. Receipts, not truth claims.
+Binds to `127.0.0.1` only. Self-contained HTML (no CDN). Genesis / append / verify / lattice a local timeslate chain in a process tmp dir. Receipts, not truth claims.
 
 
 ## iPhone & Android
 
 Flutter sources: [`mobile/`](mobile/). Application id `com.azieeliab.temporallock`. Offline. No analytics. Dark matte / gold.
 
-Genesis / append / verify on device. Receipts, not truth claims.
+Genesis / append / verify a timeslate lattice on device. Receipts, not truth claims.
 
 ```bash
 cd mobile
@@ -105,25 +113,29 @@ The `android/` and `ios/` folders in this tree are skeleton READMEs until you ru
 
 ## What it does
 
-TemporalLock records **receipts**. A receipt is an observer's note that
-something was observed at a time, with supporting evidence and a
-confidence the observer assigned. It is not a verdict, not a score of
-truth, and not an official history.
+TemporalLock records **timeslates**. A timeslate is a receipt bound to
+one StaticClock gear-click. The receipt is still an observer's note —
+not a verdict, not a score of truth, and not an official history.
 
 Each receipt is cryptographically linked to the previous one
-(`prev_hash` = SHA-256 of the prior receipt). The sequence cannot be
-altered without detection. Breaks are immediately visible. Divergent
-chains (forks) are valid and detectable. TemporalLock does not pick a
-winner.
+(`prev_hash` = SHA-256 of the prior receipt). v0.2.0 also binds a
+**timeslate hash** to `receipt.hash`, `staticclock_click`,
+`prev_timeslate_hash`, and a monotonic `click_index`. A decreasing
+`click_index` is a StaticClock rollback and is refused.
+
+The sequence cannot be altered without detection. Breaks are immediately
+visible. Divergent chains (forks) are valid and detectable. TemporalLock
+does not pick a winner.
 
 There is no modify and no delete. `chain.append(...)` only. A
-correction or dispute is a **new receipt** that may mention a prior
+correction or dispute is a **new timeslate** that may mention a prior
 hash (optional `re: <hash>` in the summary). The old receipt stays.
 
-v0.1.0 runtime is stdlib only (`hashlib`, `json`). No numpy, no extra
-crypto packages.
+v0.2.0 runtime is stdlib only (`hashlib`, `json`). No numpy, no extra
+crypto packages. The v0.1.0 core receipt hash is unchanged so older
+JSONL files still verify.
 
-## Core receipt (v0.1.0)
+## Core receipt (v0.1.0, still the hash contract)
 
 | Field | Meaning |
 |-------|---------|
@@ -137,6 +149,18 @@ crypto packages.
 Optional extra fields may exist in a JSONL line. They **must not** enter
 the core hash unless a later versioned schema says so. v0.1.0 hashes
 core fields only so chains stay verifiable long-term.
+
+## Timeslate extras (v0.2.0, not in the core hash)
+
+| Field | Meaning |
+|-------|---------|
+| `staticclock_click` | SHA-256 of a StaticClock-shaped gear-click (local digest; TemporalLock does not call StaticClock) |
+| `click_index` | Monotonic integer. Must not decrease. Same index = same click (forks allowed). |
+| `prev_timeslate_hash` | Previous timeslate hash, or the prior receipt hash as a v0.1.0 bridge |
+| `timeslate_hash` | SHA-256 of `click_index`, `prev_timeslate_hash`, `receipt_hash`, `staticclock_click` |
+
+`temporallock lattice FILE` walks both the receipt chain and the
+StaticClock binds. `temporallock click` prints a local click digest.
 
 ## Canonical encoding
 
@@ -171,7 +195,7 @@ pip install -e ".[dev]"
 From a release artifact:
 
 ```bash
-python -m pip install temporallock-0.1.0.tar.gz
+python -m pip install temporallock-0.2.0.tar.gz
 ```
 
 ## CLI
@@ -189,7 +213,10 @@ temporallock append --chain notes.jsonl --summary "re: <hash> rain began" \
   --evidence "https://example.invalid/log" --confidence 0.7
 
 temporallock verify notes.jsonl
+temporallock lattice notes.jsonl
 temporallock show notes.jsonl
+temporallock timeslate --chain notes.jsonl --summary "hook fired" --evidence "azos:prefab"
+temporallock click --timestamp 2026-07-12T14:30:00Z
 ```
 
 `verify` exits 0 if the chain is intact, nonzero if broken. No special
@@ -209,6 +236,8 @@ chain = Chain.genesis(
 chain.append("rain began", evidence="https://example.invalid/log", confidence=0.7)
 result = chain.verify()
 assert result.ok
+lattice = chain.lattice()
+assert lattice.ok and lattice.cross_hash
 ```
 
 ## Example
@@ -229,13 +258,14 @@ python -m pytest -q
 
 Offline. Fixtures are synthetic receipts. They cover genesis linking,
 tamper detection, append-only, corrections, forks, confidence/evidence
-validation, canonical stability, CLI, independent verification, and
-JSONL first-line immutability.
+validation, canonical stability, CLI, independent verification,
+JSONL first-line immutability, timeslate StaticClock cross-hash, and
+rollback refusal.
 
 ## Layout
 
 ```
-temporallock/          library (receipt, hashing/canon, chain, cli)
+temporallock/          library (receipt, hashing/canon, chain, timeslate, cli)
 tests/                 pytest
 docs/whitepaper.md     July 2026 spec
 examples/              record an observation
@@ -248,7 +278,9 @@ mobile/              Flutter iPhone + Android (`flutter create .`)
 
 TemporalLock does not add consensus, mining, tokens, or "truth scores".
 It does not interpret summaries. It does not declare a canonical fork.
-It is a receipt log, not an oracle.
+It is not a kernel, not AZ-OS itself, not a scheduler, and not a remote
+shell. Hosted `/v1` does not run AZ-OS. It is a receipt / timeslate log,
+not an oracle.
 
 ## Use with Grok, ChatGPT, Venice
 

@@ -65,10 +65,80 @@ def _check_json_roundtrip() -> Check:
         return _ok("json import/export", "roundtrip")
 
 
+def _check_core_hash_stable() -> Check:
+    from temporallock.hashing import digest
+
+    known = digest(
+        timestamp="2026-07-01T00:00:00Z",
+        summary="same",
+        evidence="uri:example",
+        confidence=0.7,
+        prev_hash="0" * 64,
+    )
+    again = digest(
+        timestamp="2026-07-01T00:00:00Z",
+        summary="same",
+        evidence="uri:example",
+        confidence=0.7,
+        prev_hash="0" * 64,
+    )
+    if known != again or len(known) != 64:
+        return _fail("v0.1.0 core hash", known)
+    return _ok("v0.1.0 core hash", "stable")
+
+
+def _check_lattice() -> Check:
+    from temporallock.chain import Chain
+    from temporallock.errors import LatticeError
+
+    with tempfile.TemporaryDirectory() as tmp:
+        path = Path(tmp) / "lattice.jsonl"
+        chain = Chain.genesis(
+            path,
+            summary="g",
+            evidence="e0",
+            timestamp="2026-07-01T00:00:00Z",
+            click_index=0,
+        )
+        chain.append(
+            "next",
+            evidence="e1",
+            timestamp="2026-07-01T00:01:00Z",
+            click_index=1,
+        )
+        result = chain.lattice()
+        if not result.ok or not result.cross_hash or result.bound != 2:
+            return _fail("lattice", str(result.errors))
+        try:
+            chain.append(
+                "rollback",
+                evidence="e2",
+                timestamp="2026-07-01T00:02:00Z",
+                click_index=0,
+            )
+            return _fail("no-rollback", "decreasing click_index was accepted")
+        except LatticeError:
+            pass
+        return _ok("timeslate lattice", f"bound={result.bound} staticclock cross-hash")
+
+
+def _check_staticclock_click() -> Check:
+    from temporallock.timeslate import staticclock_click_digest
+
+    a = staticclock_click_digest({"kind": "gear-click", "timestamp": "2026-07-01T00:00:00Z", "click_index": 0})
+    b = staticclock_click_digest({"kind": "gear-click", "timestamp": "2026-07-01T00:00:00Z", "click_index": 0})
+    if a != b or len(a) != 64:
+        return _fail("staticclock click", a)
+    return _ok("staticclock click", "local digest")
+
+
 CHECKS: tuple[Callable[[], Check], ...] = (
     _check_version,
     _check_identity,
     _check_json_roundtrip,
+    _check_core_hash_stable,
+    _check_lattice,
+    _check_staticclock_click,
 )
 
 
@@ -89,6 +159,7 @@ def run_doctor(*, as_json: bool = False) -> int:
         "checks": results,
         "version": __version__,
         "author": AUTHOR,
+        "role": "immutable timeslate lattice",
         "network": False,
         "telemetry": False,
     }

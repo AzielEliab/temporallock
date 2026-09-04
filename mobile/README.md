@@ -1,6 +1,8 @@
 # TemporalLock — iPhone & Android
 
-Genesis, append, and verify an append-only SHA-256 receipt chain on device. Evidence required. Confidence in [0,1].
+Genesis, append, and verify an immutable timeslate lattice on device.
+Each timeslate is a receipt bound to a StaticClock gear-click. Evidence
+required. Confidence in [0,1]. No rollbacks.
 
 Offline. No analytics. Dark matte / gold.
 
@@ -23,7 +25,8 @@ Xcode.
 
 ## Honest scope
 
-Receipts are not truth claims, verdicts, or official history. No consensus, mining, or tokens.
+Timeslates are not truth claims, verdicts, or official history. This is
+an AZ-OS integrity log on device — not a kernel. No consensus, mining, or tokens.
 
 ## Desktop package (counted download)
 

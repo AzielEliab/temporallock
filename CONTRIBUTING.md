@@ -39,17 +39,27 @@ pytest is the dev extra. No network.
 5. **Do not change the v0.1.0 canonical encoding** without a versioned
    schema. Hashed fields are `timestamp`, `summary`, `evidence`,
    `confidence`, `prev_hash`. Confidence is 6 decimal places. Optional
-   fields must not enter the core hash.
-6. **Evidence is required.** Empty evidence is invalid. Confidence is
+   fields must not enter the core hash. v0.2.0 timeslate extras
+   (`staticclock_click`, `click_index`, `prev_timeslate_hash`,
+   `timeslate_hash`) are stored beside the receipt and hashed separately.
+6. **No StaticClock rollbacks.** A decreasing `click_index` is refused
+   (`LatticeError`). Same index is a fork on one gear-click and is
+   allowed. TemporalLock does not call StaticClock; it binds a local
+   digest of a StaticClock-shaped click.
+7. **Honest AZ-OS role.** TemporalLock is the integrity lattice AZ-OS
+   prefab hooks may write. It is not a kernel and does not execute
+   software. Do not claim hosted `/v1` runs AZ-OS.
+8. New behavior needs a test that fails without the change.
+9. **Evidence is required.** Empty evidence is invalid. Confidence is
    `[0.0, 1.0]` inclusive, assigned by the observer — not computed as
    a claim about the world.
-7. New behavior needs a test that fails without the change.
 
 ## Where to change things
 
 - Canonical encoding / SHA-256: `temporallock/canon.py`, `temporallock/hashing.py`
 - Receipt dataclass: `temporallock/receipt.py`
-- Chain load/append/verify/forks: `temporallock/chain.py`
+- Timeslate lattice / StaticClock click: `temporallock/timeslate.py`
+- Chain load/append/verify/lattice/forks: `temporallock/chain.py`
 - CLI: `temporallock/cli.py`
 - Errors: `temporallock/errors.py`
 
