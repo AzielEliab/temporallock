@@ -84,8 +84,7 @@ Then open http://127.0.0.1:8766 (this computer only).
 
 THIS IS: an immutable timeslate lattice hash-chained against the StaticClock gear-click timeline, used as the AZ-OS integrity log. THIS IS NOT: a kernel, scheduler, truth score, court, or remote shell. The Worker does not store chains and does not run AZ-OS. Author Aziel Eliab.
 
-DOI: https://doi.org/10.5281/zenodo.21431405  
-Record: https://zenodo.org/records/21431405
+Cite the GitHub repository and this Worker. Historical DOI 10.5281/zenodo.21431405 is a tombstoned Zenodo record and is not currently resolvable. No DOI is invented here.
 
 Apache-2.0 (or the repo LICENSE). Forks are welcome and always allowed.
 
@@ -93,6 +92,7 @@ Apache-2.0 (or the repo LICENSE). Forks are welcome and always allowed.
 
 Author: **Aziel Eliab**. Honest scope: Timeslate lattice × StaticClock. AZ-OS integrity, not a kernel.
 
+- Product homepage (workspace + counted download): https://temporallock-download-tracker.vibelock.workers.dev/
 - Catalog product: https://aziel-runtime.vibelock.workers.dev/p/temporallock/
 - Catalog OpenAPI: https://aziel-runtime.vibelock.workers.dev/openapi.json
 - Catalog MCP: \`POST https://aziel-runtime.vibelock.workers.dev/mcp\`
@@ -634,15 +634,22 @@ function aiHtml() {
 <html lang="en">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>TemporalLock — use with Grok, ChatGPT, Venice</title>
+<title>TemporalLock — Aziel Eliab · AI runtime</title>
 <style>
   :root { color-scheme: dark; }
-  body { font: 16px/1.45 system-ui, sans-serif; max-width: 42rem; margin: 3rem auto; padding: 0 1.25rem; background: #0e1014; color: #e8eaef; }
+  body { font: 16px/1.45 system-ui, sans-serif; max-width: 42rem; margin: 3rem auto; padding: 0 1.25rem 3rem; background: #0b0c10; color: #f3efe3; }
   code { background: #151922; padding: .15rem .4rem; border-radius: 4px; }
-  a { color: #c9d4ff; }
-  .motto { color: #9aa3b2; font-style: italic; }
+  a { color: #e6d19a; }
+  .motto { color: #d4af37; font-style: italic; }
+  .brandrow{display:flex;align-items:center;gap:12px;margin:0 0 10px}
+  .brandmark{width:40px;height:40px;border-radius:10px;object-fit:cover;flex:0 0 auto;box-shadow:0 0 0 1px #d4af3733}
+  .stamp{margin:0;color:#d4af37;font-size:.88rem}
 </style>
 <body>
+  <div class="brandrow">
+    <img class="brandmark" src="/sigil.png" width="40" height="40" alt="Everblooming sigil — Aziel Eliab" decoding="async">
+    <p class="stamp">Everblooming sigil · Aziel Eliab</p>
+  </div>
   <h1>TemporalLock live API</h1>
   <p class="motto">${MOTTO}</p>
   <p>Immutable timeslate lattice hash-chained against StaticClock. AZ-OS integrity log — not a kernel. Stateless: send the chain JSON in the body. The Worker does not store chains and does not run AZ-OS. Author ${AUTHOR}.</p>
@@ -656,7 +663,7 @@ function aiHtml() {
   <p>Custom HTTP tool from the same OpenAPI URL.</p>
   <h2>MCP catalog</h2>
   <p>The shared catalog (ships separately) is <code>https://aziel-runtime.vibelock.workers.dev/mcp</code>.</p>
-  <p><a href="/openapi.json">openapi.json</a> · <a href="/v1/health">health</a> · <a href="/">downloads</a></p>
+  <p><a href="/openapi.json">openapi.json</a> · <a href="/v1/health">health</a> · <a href="/">TemporalLock software</a> · <a href="/cite.json">cite.json</a></p>
 </body>
 </html>`;
 }

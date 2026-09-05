@@ -71,8 +71,7 @@ Then open http://127.0.0.1:8766 (this computer only).
 
 THIS IS: an immutable timeslate lattice hash-chained against the StaticClock gear-click timeline, used as the AZ-OS integrity log. THIS IS NOT: a kernel, scheduler, truth score, court, or remote shell. The Worker does not store chains and does not run AZ-OS. Author Aziel Eliab.
 
-DOI: https://doi.org/10.5281/zenodo.21431405  
-Record: https://zenodo.org/records/21431405
+Cite the GitHub repository and this Worker. Historical DOI 10.5281/zenodo.21431405 is a tombstoned Zenodo record and is not currently resolvable. No DOI is invented here.
 
 Apache-2.0 (or the repo LICENSE). Forks are welcome and always allowed.
 
@@ -80,6 +79,7 @@ Apache-2.0 (or the repo LICENSE). Forks are welcome and always allowed.
 
 Author: **Aziel Eliab**. Honest scope: Timeslate lattice × StaticClock. AZ-OS integrity, not a kernel.
 
+- Product homepage (workspace + counted download): https://temporallock-download-tracker.vibelock.workers.dev/
 - Catalog product: https://aziel-runtime.vibelock.workers.dev/p/temporallock/
 - Catalog OpenAPI: https://aziel-runtime.vibelock.workers.dev/openapi.json
 - Catalog MCP: `POST https://aziel-runtime.vibelock.workers.dev/mcp`
