@@ -68,7 +68,7 @@ curl -s -A 'Mozilla/5.0' -X POST https://temporallock-download-tracker.vibelock.
 curl -s -A 'Mozilla/5.0' https://temporallock-download-tracker.vibelock.workers.dev/v1/skill
 \`\`\`
 
-Grok: import the catalog OpenAPI as a custom tool. ChatGPT: GPT Actions. Venice: HTTP tools.
+Works with ChatGPT (GPT Actions / OpenAI), Grok (xAI), Venice, Claude (Anthropic), Cursor (MCP), Glama (MCP), Perplexity, Microsoft Copilot / Bing, Google Gemini / Vertex, Mistral, Meta AI, Apple Intelligence surfaces, Amazon Q tooling, DuckAssist, You.com, Cohere, and other MCP/OpenAPI-capable assistants. Import the catalog or Worker OpenAPI as a GPT Action, custom HTTP tool, or custom OpenAPI tool. MCP clients (Cursor, Glama, Claude, and others): \`POST\` the catalog MCP endpoint.
 
 ## Local (after one-click install)
 
@@ -102,7 +102,7 @@ Author: **Aziel Eliab**. Honest scope: Timeslate lattice × StaticClock. AZ-OS i
 
 Local UI: **Import JSON file** (\`type=file\`) and **Export JSON**. Then \`temporallock doctor\`.
 
-Grok: import catalog or Worker OpenAPI as a custom tool. ChatGPT: GPT Actions. Venice: HTTP tools.
+Works with ChatGPT (GPT Actions / OpenAI), Grok (xAI), Venice, Claude (Anthropic), Cursor (MCP), Glama (MCP), Perplexity, Microsoft Copilot / Bing, Google Gemini / Vertex, Mistral, Meta AI, Apple Intelligence surfaces, Amazon Q tooling, DuckAssist, You.com, Cohere, and other MCP/OpenAPI-capable assistants. Import catalog or Worker OpenAPI as a GPT Action, custom HTTP tool, or custom OpenAPI tool. MCP clients: \`POST https://aziel-runtime.vibelock.workers.dev/mcp\`.
 
 Counted download (gzip HTTP 200, no 302): https://temporallock-download-tracker.vibelock.workers.dev/download?asset=temporallock-0.2.0.tar.gz
 GitHub: https://github.com/AzielEliab/temporallock
@@ -654,15 +654,14 @@ function aiHtml() {
   <p class="motto">${MOTTO}</p>
   <p>Immutable timeslate lattice hash-chained against StaticClock. AZ-OS integrity log — not a kernel. Stateless: send the chain JSON in the body. The Worker does not store chains and does not run AZ-OS. Author ${AUTHOR}.</p>
   <p>StaticClock: <a href="${STATICCLOCK_HOST}/">${STATICCLOCK_HOST}</a> · AZ-OS: <a href="${AZOS_HOST}/">${AZOS_HOST}</a></p>
-  <h2>ChatGPT (GPT Actions)</h2>
-  <p>Paste this OpenAPI URL into GPT Actions:</p>
+  <h2>Use with AI assistants</h2>
+  <p>Works with ChatGPT (GPT Actions / OpenAI), Grok (xAI), Venice, Claude (Anthropic), Cursor (MCP), Glama (MCP), Perplexity, Microsoft Copilot / Bing, Google Gemini / Vertex, Mistral, Meta AI, Apple Intelligence surfaces, Amazon Q tooling, DuckAssist, You.com, Cohere, and other MCP/OpenAPI-capable assistants. Author ${AUTHOR} only.</p>
+  <h2>OpenAPI import</h2>
+  <p>Paste this OpenAPI URL into GPT Actions, custom HTTP tools, Grok custom tools, or any other OpenAPI-capable assistant:</p>
   <p><code>${HOST}/openapi.json</code></p>
-  <h2>Grok / xAI</h2>
-  <p>Custom tool pointing at <code>POST ${HOST}/v1/genesis</code>, <code>/v1/append</code>, <code>/v1/verify</code>, <code>/v1/gate</code>.</p>
-  <h2>Venice</h2>
-  <p>Custom HTTP tool from the same OpenAPI URL.</p>
+  <p>Custom tools can also point at <code>POST ${HOST}/v1/genesis</code>, <code>/v1/append</code>, <code>/v1/verify</code>, <code>/v1/gate</code>.</p>
   <h2>MCP catalog</h2>
-  <p>The shared catalog (ships separately) is <code>https://aziel-runtime.vibelock.workers.dev/mcp</code>.</p>
+  <p>MCP clients (Cursor, Glama, Claude, and others) use the shared catalog (ships separately): <code>https://aziel-runtime.vibelock.workers.dev/mcp</code>.</p>
   <p><a href="/openapi.json">openapi.json</a> · <a href="/v1/health">health</a> · <a href="/">TemporalLock software</a> · <a href="/cite.json">cite.json</a></p>
 </body>
 </html>`;

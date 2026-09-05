@@ -282,11 +282,13 @@ It is not a kernel, not AZ-OS itself, not a scheduler, and not a remote
 shell. Hosted `/v1` does not run AZ-OS. It is a receipt / timeslate log,
 not an oracle.
 
-## Use with Grok, ChatGPT, Venice
+## Use with AI assistants
+
+Works with ChatGPT (GPT Actions / OpenAI), Grok (xAI), Venice, Claude (Anthropic), Cursor (MCP), Glama (MCP), Perplexity, Microsoft Copilot / Bing, Google Gemini / Vertex, Mistral, Meta AI, Apple Intelligence surfaces, Amazon Q tooling, DuckAssist, You.com, Cohere, and other MCP/OpenAPI-capable assistants. Author Aziel Eliab only.
 
 Live HTTPS runtime on the existing download-tracker Worker. Stateless: send the chain JSON in the body. Receipts, not truth claims.
 
-OpenAPI (ChatGPT GPT Actions / Venice custom HTTP / Grok custom tool):
+OpenAPI (GPT Actions, custom HTTP tools, Grok custom tools, and other OpenAPI imports):
 
 ```
 https://temporallock-download-tracker.vibelock.workers.dev/openapi.json
@@ -294,7 +296,7 @@ https://temporallock-download-tracker.vibelock.workers.dev/openapi.json
 
 Setup notes: [https://temporallock-download-tracker.vibelock.workers.dev/ai](https://temporallock-download-tracker.vibelock.workers.dev/ai)
 
-MCP catalog (ships separately): `https://aziel-runtime.vibelock.workers.dev/mcp`
+MCP catalog (Cursor, Glama, Claude, and other MCP clients; ships separately): `https://aziel-runtime.vibelock.workers.dev/mcp`
 
 ```bash
 curl -sS -X POST https://temporallock-download-tracker.vibelock.workers.dev/v1/genesis \
