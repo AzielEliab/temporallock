@@ -35,7 +35,7 @@ The script curls the **counted** tarball from this project's Worker
 (`/download`, User-Agent `Mozilla/5.0`), extracts, makes a venv, and
 `pip install -e .`. Then run `temporallock ui`.
 
-Or tap **Download** / **One-click install** on the Worker homepage:
+Or use the live software homepage (workspace + counted download):
 https://temporallock-download-tracker.vibelock.workers.dev/
 
 ## Counted download (Cloudflare Worker)
@@ -49,7 +49,7 @@ The Worker serves the gzip itself (HTTP 200, no 302 to GitHub).
 - Skill: [https://temporallock-download-tracker.vibelock.workers.dev/v1/skill](https://temporallock-download-tracker.vibelock.workers.dev/v1/skill)
 - OpenAPI: [https://temporallock-download-tracker.vibelock.workers.dev/openapi.json](https://temporallock-download-tracker.vibelock.workers.dev/openapi.json)
 - GitHub: [https://github.com/AzielEliab/temporallock](https://github.com/AzielEliab/temporallock)
-- Zenodo DOI: [10.5281/zenodo.21431405](https://doi.org/10.5281/zenodo.21431405) · [record](https://zenodo.org/records/21431405)
+- Cite: [cite.json](https://temporallock-download-tracker.vibelock.workers.dev/cite.json) — Eliab, Aziel. (2026). TemporalLock 0.2.0 [Software]. Apache-2.0. Historical DOI 10.5281/zenodo.21431405 is tombstoned; no DOI is invented here.
 
 Isolated counter: Worker `temporallock-download-tracker`, KV `TEMPORALLOCK_DOWNLOADS`. `/v1` does not increment downloads.
 
