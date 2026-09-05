@@ -34,7 +34,8 @@ def test_workspace_calls_real_ops() -> None:
 
 
 def test_download_install_and_identity_remain() -> None:
-    assert "/download?asset=temporallock-0.2.0.tar.gz" in HOME
+    assert "/download?asset=" in HOME
+    assert "temporallock-0.2.0.tar.gz" in HOME
     assert "One-click install" in HOME
     assert "Aziel Eliab only" in HOME
     assert "Apache-2.0" in HOME
@@ -54,3 +55,4 @@ def test_worker_serves_home_and_seo() -> None:
     assert "handleSeoRoutes" in INDEX
     assert 'url.pathname === "/"' in INDEX
     assert "/download" in INDEX
+    assert "function totalKey()" in INDEX

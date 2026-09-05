@@ -181,6 +181,10 @@ function viewsKey() {
   return PROJECT + "|__views__";
 }
 
+function totalKey() {
+  return PROJECT + "|__total__";
+}
+
 function githubCacheKey() {
   return PROJECT + "|__github__";
 }
