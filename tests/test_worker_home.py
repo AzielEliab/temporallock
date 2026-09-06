@@ -56,3 +56,17 @@ def test_worker_serves_home_and_seo() -> None:
     assert 'url.pathname === "/"' in INDEX
     assert "/download" in INDEX
     assert "function totalKey()" in INDEX
+
+
+def test_count_returns_project_views_downloads_total() -> None:
+    assert 'url.pathname === "/count"' in INDEX
+    block = INDEX.split('url.pathname === "/count"')[1].split("if (url.pathname")[0]
+    for key in ("project", "views", "downloads", "total"):
+        assert f"{key}:" in block
+    assert "incrementViews" not in block
+    assert "increment(" not in block
+
+
+def test_download_increment_updates_total_key() -> None:
+    block = INDEX.split("async function increment(env, dims)")[1].split("async function listAllKeys")[0]
+    assert "totalKey()" in block

@@ -7,6 +7,7 @@ import { handleRuntimeApi } from "./runtime.js";
  * GET  /download?repo=AzielEliab/temporallock&tag=latest&asset=...
  *      increments KV, serves gzip via ASSETS.fetch (no 302)
  *      (default https://github.com/AzielEliab/temporallock/releases)
+ * GET  /count   JSON {project, views, downloads, total} — does not increment
  * GET  /stats   JSON totals + per-repo + per-branch breakdown
  * POST /event   forks report a download {owner,repo,branch,fork,asset}
  *
@@ -113,6 +114,8 @@ async function increment(env, dims) {
   const key = kvKey(dims);
   const n = parseInt((await env.DOWNLOADS.get(key)) || "0", 10) + 1;
   await env.DOWNLOADS.put(key, String(n));
+  const t = parseInt((await env.DOWNLOADS.get(totalKey())) || "0", 10) + 1;
+  await env.DOWNLOADS.put(totalKey(), String(Number.isFinite(t) ? t : 1));
   return n;
 }
 
@@ -329,7 +332,12 @@ export default {
 
     if (url.pathname === "/count" && request.method === "GET") {
       const stats = await collectStats(env);
-      return json({ project: PROJECT, total: stats.total || 0 });
+      return json({
+        project: PROJECT,
+        views: Number(stats.views) || 0,
+        downloads: Number(stats.downloads) || 0,
+        total: Number(stats.total) || 0,
+      });
     }
 
     if (url.pathname === "/stats" && request.method === "GET") {

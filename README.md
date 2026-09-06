@@ -82,7 +82,7 @@ anything. Forks that use the same link are counted too.
 
 Direct tarball (also counted): [temporallock-0.2.0.tar.gz](https://temporallock-download-tracker.vibelock.workers.dev/download?asset=temporallock-0.2.0.tar.gz)
 
-- Live count JSON: [https://temporallock-download-tracker.vibelock.workers.dev/count](https://temporallock-download-tracker.vibelock.workers.dev/count)
+- Live count JSON `{project, views, downloads, total}`: [https://temporallock-download-tracker.vibelock.workers.dev/count](https://temporallock-download-tracker.vibelock.workers.dev/count)
 - Stats: [https://temporallock-download-tracker.vibelock.workers.dev/stats](https://temporallock-download-tracker.vibelock.workers.dev/stats)
 - GitHub releases: [https://github.com/AzielEliab/temporallock/releases](https://github.com/AzielEliab/temporallock/releases)
 
