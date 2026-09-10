@@ -248,9 +248,13 @@ CLI additions: `temporallock lattice`, `temporallock timeslate`,
 
 The Worker homepage shows a suite Live Nodes strip. `/v1/mesh/*` PROXY
 to aziel-runtime. Suite mesh default OFF. QNM rollup is
-live|locked|isolated counts only. No Node Gate. No auto-heal. Not an
-anonymity network. Anon-broadcast is not a publish path. TemporalLock
-remains an immutable timeslate lattice (AZ-OS integrity log, not a kernel).
+live|locked|isolated counts only. QNS-CD-1.0 photon QNS1 packet
+transfer is a hub cite / Worker mesh cross-map only (local qnsd in
+qnm-node; runtime cites in aziel-runtime; pair custody AZInterface).
+Not a Softwares-tab product. No Node Gate. No public qnsd proxy. No
+auto-heal. Not an anonymity network. Anon-broadcast is not a publish
+path. TemporalLock remains an immutable timeslate lattice (AZ-OS
+integrity log, not a kernel).
 
 Author remains **Aziel Eliab** only.
 

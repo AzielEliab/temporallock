@@ -1,6 +1,7 @@
-"""Suite mesh Live Nodes + QNM-BUILD-1.0 contract.
+"""Suite mesh Live Nodes + QNM-BUILD-1.0 + QNS-CD-1.0 cross-map contract.
 
-Default OFF. live|locked|isolated. No Node Gate. No auto-heal. Not anonymity.
+Default OFF. live|locked|isolated. No Node Gate. No public qnsd proxy.
+No auto-heal. Not anonymity. Not a Softwares-tab product.
 """
 
 from __future__ import annotations
@@ -32,6 +33,18 @@ def test_mesh_contract_default_off_qnm_law() -> None:
     assert "anon_broadcast_publish_path: false" in MESH
     assert "Aziel Eliab" in MESH
     assert 'code: extra.code || "MESH-OK"' in MESH or '"MESH-OK"' in MESH
+    assert 'QNS_CD_SPEC = "QNS-CD-1.0"' in MESH
+    assert "export const QNS_CD" in MESH
+    assert "photon QNS1 packet transfer" in MESH
+    assert "https://github.com/AzielEliab/qnm-node" in MESH
+    assert "https://github.com/AzielEliab/aziel-runtime" in MESH
+    assert "https://github.com/AzielEliab/azinterface" in MESH
+    assert "softwares_tab: false" in MESH
+    assert "public_qnsd_proxy: false" in MESH
+    assert "QNS-CD-1.0 photon QNS1 packet transfer. Suite mesh default off" in MESH
+    assert "stampQnsCd" in MESH
+    assert "qnsCdCrossMap" in MESH
+    assert "No public qnsd proxy" in MESH
 
 
 def test_mesh_pointer_and_openapi_helpers() -> None:
@@ -78,6 +91,7 @@ def test_runtime_advertises_mesh_proxy_and_pointer() -> None:
     assert "mesh: meshPointer()" in RUNTIME
     assert "/v1/mesh" in RUNTIME
     assert "QNM-BUILD-1.0" in RUNTIME
+    assert "QNS-CD-1.0" in RUNTIME
     assert "No Node Gate" in RUNTIME
     assert 'path === "/v1/mesh"' in RUNTIME or 'path.startsWith("/v1/mesh/")' in RUNTIME
 
@@ -88,6 +102,7 @@ def test_home_live_nodes_strip_no_node_gate() -> None:
     assert 'id="meshLine"' in HOME
     assert "Live Nodes" in HOME
     assert "QNM-BUILD-1.0" in HOME
+    assert "QNS-CD-1.0" in HOME
     assert "No Node Gate" in HOME
     assert "No auto-heal" in HOME
     assert "Not an anonymity network" in HOME
@@ -108,3 +123,13 @@ def test_docs_advertise_mesh_proxy() -> None:
     assert "MESH-OK" in WORKER_README
     assert "enabled: false" in WORKER_README
     assert "Aziel Eliab" in MESH
+    assert "QNS-CD-1.0" in README
+    assert "QNS-CD-1.0" in SKILL
+    assert "QNS-CD-1.0" in WORKER_README
+    assert "QNS-CD-1.0" in RUNTIME
+    assert "QNS-CD-1.0" in HOME
+    assert "no public qnsd proxy" in HOME
+    assert "photon QNS1" in README
+    assert "not a Softwares-tab product" in SKILL or "Not a Softwares-tab product" in SKILL
+    assert "qnm-node" in SKILL
+    assert "aziel-runtime" in SKILL
