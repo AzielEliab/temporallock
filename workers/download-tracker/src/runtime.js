@@ -15,7 +15,7 @@ const AZOS_HOST = "https://azos-download-tracker.vibelock.workers.dev";
 const HOST = "https://temporallock-download-tracker.vibelock.workers.dev";
 const SKILL = `---
 name: TemporalLock
-description: Use when minting or verifying an immutable timeslate lattice hash-chained against StaticClock. AZ-OS integrity log. Receipts, not truth claims. Hosted API is stateless. Dual surface: Worker /v1 + catalog MCP. This Worker /v1/mesh/* PROXY to aziel-runtime via AZIEL_RUNTIME. Suite mesh default OFF. QNM-BUILD-1.0 live|locked|isolated. No Node Gate. No auto-heal. Not anonymity. Author Aziel Eliab.
+description: Use when minting or verifying an immutable timeslate lattice hash-chained against StaticClock. AZ-OS integrity log. Receipts, not truth claims. Hosted API is stateless. Dual surface: Worker /v1 + catalog MCP. This Worker /v1/mesh/* PROXY to aziel-runtime via AZIEL_RUNTIME. Suite mesh default OFF. QNM-BUILD-1.0 live|locked|isolated. QNS-CD-1.0 photon QNS1 packet transfer is a hub cite / Worker mesh cross-map only (not a Softwares-tab product; no public qnsd proxy). No Node Gate. No auto-heal. Not anonymity. Author Aziel Eliab.
 ---
 
 # TemporalLock
@@ -36,8 +36,8 @@ Host: \`https://temporallock-download-tracker.vibelock.workers.dev\`
 |--------|------|------|
 | GET | \`/v1/health\` | Liveness. Does not increment downloads. |
 | GET | \`/v1/skill\` | This markdown. Does not increment downloads. |
-| GET | \`/v1/mesh\` | PROXY suite mesh status. Default OFF. QNM live|locked|isolated. Never enables. |
-| GET | \`/v1/mesh/nodes\` | PROXY Live Nodes roster (5-minute presence). |
+| GET | \`/v1/mesh\` | PROXY suite mesh status. Default OFF. QNM live|locked|isolated. QNS-CD-1.0 cross-map on the payload. Never enables. |
+| GET | \`/v1/mesh/nodes\` | PROXY Live Nodes roster (5-minute presence). QNS-CD-1.0 cross-map stamped for peers. |
 | POST | \`/v1/mesh/{enable,disable,join,heartbeat,leave,broadcast}\` | PROXY. Bearer required to enable. No auto-heal. Anon-broadcast is not a publish path. |
 | GET | \`/v1/example\` | Sample timeslate payload. Does not increment downloads. |
 | POST | \`/v1/genesis\` | First timeslate. Body includes summary + evidence. Optional click. |
@@ -54,7 +54,7 @@ Catalog OpenAPI: \`https://aziel-runtime.vibelock.workers.dev/openapi.json\`
 
 MCP: \`POST https://aziel-runtime.vibelock.workers.dev/mcp\`
 
-Catalog aliases under \`/p/temporallock/…\`. Catalog MCP \`mesh_*\` + FragGate \`slug=mesh\`. Suite mesh default OFF.
+Catalog aliases under \`/p/temporallock/…\`. Catalog MCP \`mesh_*\` + FragGate \`slug=mesh\`. Suite mesh default OFF. QNS-CD-1.0 photon QNS1 packet transfer is a hub cite / Worker mesh cross-map only — local qnsd in [qnm-node](https://github.com/AzielEliab/qnm-node), runtime cites in [aziel-runtime](https://github.com/AzielEliab/aziel-runtime), pair custody [AZInterface](https://github.com/AzielEliab/azinterface). Not a Softwares-tab product. No public qnsd proxy.
 
 StaticClock (gear-click timeline): \`https://staticclock-download-tracker.vibelock.workers.dev/\`
 
@@ -105,9 +105,9 @@ Author: **Aziel Eliab**. Honest scope: Timeslate lattice × StaticClock. AZ-OS i
 - This Worker skill: \`GET https://temporallock-download-tracker.vibelock.workers.dev/v1/skill\`
 - This Worker OpenAPI: https://temporallock-download-tracker.vibelock.workers.dev/openapi.json
 - Sample payload: \`GET https://temporallock-download-tracker.vibelock.workers.dev/v1/example\`
-- Suite mesh: \`GET https://temporallock-download-tracker.vibelock.workers.dev/v1/mesh\` (PROXY; default OFF)
+- Suite mesh: \`GET https://temporallock-download-tracker.vibelock.workers.dev/v1/mesh\` (PROXY; default OFF; QNS-CD-1.0 cross-map)
 
-Local UI: **Import JSON file** (\`type=file\`) and **Export JSON**. Then \`temporallock doctor\`. Worker homepage Live Nodes strip polls \`GET /v1/mesh\` (default OFF).
+Local UI: **Import JSON file** (\`type=file\`) and **Export JSON**. Then \`temporallock doctor\`. Worker homepage Live Nodes strip polls \`GET /v1/mesh\` (default OFF; QNS-CD-1.0 cite).
 
 Works with ChatGPT (GPT Actions / OpenAI), Grok (xAI), Venice, Claude (Anthropic), Cursor (MCP), Glama (MCP), Perplexity, Microsoft Copilot / Bing, Google Gemini / Vertex, Mistral, Meta AI, Apple Intelligence surfaces, Amazon Q tooling, DuckAssist, You.com, Cohere, and other MCP/OpenAPI-capable assistants. Import catalog or Worker OpenAPI as a GPT Action, custom HTTP tool, or custom OpenAPI tool. MCP clients: \`POST https://aziel-runtime.vibelock.workers.dev/mcp\`.
 
@@ -554,7 +554,7 @@ function openapiSpec() {
     info: {
       title: "TemporalLock runtime",
       version: VERSION,
-      description: "Immutable timeslate lattice hash-chained against StaticClock. AZ-OS integrity log. Client sends the chain JSON (stateless). " + MOTTO + " Suite mesh /v1/mesh/* PROXY to aziel-runtime (AZIEL_RUNTIME). Default OFF. QNM-BUILD-1.0 live|locked|isolated. No Node Gate. No auto-heal. Not anonymity. Author " + AUTHOR + ".",
+      description: "Immutable timeslate lattice hash-chained against StaticClock. AZ-OS integrity log. Client sends the chain JSON (stateless). " + MOTTO + " Suite mesh /v1/mesh/* PROXY to aziel-runtime (AZIEL_RUNTIME). Default OFF. QNM-BUILD-1.0 live|locked|isolated. QNS-CD-1.0 photon QNS1 packet transfer is a hub cite / Worker mesh cross-map only. No Node Gate. No public qnsd proxy. No auto-heal. Not anonymity. Author " + AUTHOR + ".",
     },
     servers: [{ url: HOST }],
     paths: {
@@ -670,7 +670,7 @@ function aiHtml() {
   <p>Custom tools can also point at <code>POST ${HOST}/v1/genesis</code>, <code>/v1/append</code>, <code>/v1/verify</code>, <code>/v1/gate</code>.</p>
   <h2>MCP catalog</h2>
   <p>MCP clients (Cursor, Glama, Claude, and others) use the shared catalog (ships separately): <code>https://aziel-runtime.vibelock.workers.dev/mcp</code> (catalog <code>mesh_*</code> + FragGate <code>slug=mesh</code>).</p>
-  <p>Suite mesh: <code>GET ${HOST}/v1/mesh</code> PROXY to aziel-runtime. Default OFF. QNM-BUILD-1.0 live|locked|isolated. No Node Gate. No auto-heal. Not anonymity. Author: Aziel Eliab only.</p>
+  <p>Suite mesh: <code>GET ${HOST}/v1/mesh</code> PROXY to aziel-runtime. Default OFF. QNM-BUILD-1.0 live|locked|isolated. QNS-CD-1.0 photon QNS1 packet transfer is a hub cite / Worker mesh cross-map only. No Node Gate. No public qnsd proxy. No auto-heal. Not anonymity. Author: Aziel Eliab only.</p>
   <p><a href="/openapi.json">openapi.json</a> · <a href="/v1/health">health</a> · <a href="/v1/mesh">/v1/mesh</a> · <a href="/">TemporalLock software</a> · <a href="/cite.json">cite.json</a></p>
 </body>
 </html>`;
