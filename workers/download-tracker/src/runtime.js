@@ -2,7 +2,9 @@
  * TemporalLock hosted runtime (port of canon/receipt/chain).
  * Stateless: client sends the chain JSON in the body. Receipts not truth claims.
  * /v1 never touches DOWNLOADS KV.
+ * /v1/mesh/* PROXY to aziel-runtime via AZIEL_RUNTIME (handled in index.js before this catch-all).
  */
+import { meshOpenApiPaths, meshPointer } from "./mesh.js";
 const PRODUCT = "temporallock";
 const VERSION = "0.2.0";
 const MOTTO = "Receipts, not truth claims.";
@@ -13,7 +15,7 @@ const AZOS_HOST = "https://azos-download-tracker.vibelock.workers.dev";
 const HOST = "https://temporallock-download-tracker.vibelock.workers.dev";
 const SKILL = `---
 name: TemporalLock
-description: Use when minting or verifying an immutable timeslate lattice hash-chained against StaticClock. AZ-OS integrity log. Receipts, not truth claims. Hosted API is stateless. Hosted /v1 via this Worker or aziel-runtime. Author Aziel Eliab.
+description: Use when minting or verifying an immutable timeslate lattice hash-chained against StaticClock. AZ-OS integrity log. Receipts, not truth claims. Hosted API is stateless. Dual surface: Worker /v1 + catalog MCP. This Worker /v1/mesh/* PROXY to aziel-runtime via AZIEL_RUNTIME. Suite mesh default OFF. QNM-BUILD-1.0 live|locked|isolated. No Node Gate. No auto-heal. Not anonymity. Author Aziel Eliab.
 ---
 
 # TemporalLock
@@ -34,6 +36,9 @@ Host: \`https://temporallock-download-tracker.vibelock.workers.dev\`
 |--------|------|------|
 | GET | \`/v1/health\` | Liveness. Does not increment downloads. |
 | GET | \`/v1/skill\` | This markdown. Does not increment downloads. |
+| GET | \`/v1/mesh\` | PROXY suite mesh status. Default OFF. QNM live|locked|isolated. Never enables. |
+| GET | \`/v1/mesh/nodes\` | PROXY Live Nodes roster (5-minute presence). |
+| POST | \`/v1/mesh/{enable,disable,join,heartbeat,leave,broadcast}\` | PROXY. Bearer required to enable. No auto-heal. Anon-broadcast is not a publish path. |
 | GET | \`/v1/example\` | Sample timeslate payload. Does not increment downloads. |
 | POST | \`/v1/genesis\` | First timeslate. Body includes summary + evidence. Optional click. |
 | POST | \`/v1/append\` | Append a timeslate. Client sends the chain. Decreasing click_index is refused. |
@@ -49,7 +54,7 @@ Catalog OpenAPI: \`https://aziel-runtime.vibelock.workers.dev/openapi.json\`
 
 MCP: \`POST https://aziel-runtime.vibelock.workers.dev/mcp\`
 
-Catalog aliases under \`/p/temporallock/…\`.
+Catalog aliases under \`/p/temporallock/…\`. Catalog MCP \`mesh_*\` + FragGate \`slug=mesh\`. Suite mesh default OFF.
 
 StaticClock (gear-click timeline): \`https://staticclock-download-tracker.vibelock.workers.dev/\`
 
@@ -66,6 +71,7 @@ curl -s -A 'Mozilla/5.0' -X POST https://temporallock-download-tracker.vibelock.
   -H 'content-type: application/json' \\
   -d '{"chain":[]}'
 curl -s -A 'Mozilla/5.0' https://temporallock-download-tracker.vibelock.workers.dev/v1/skill
+curl -s -A 'Mozilla/5.0' https://temporallock-download-tracker.vibelock.workers.dev/v1/mesh
 \`\`\`
 
 Works with ChatGPT (GPT Actions / OpenAI), Grok (xAI), Venice, Claude (Anthropic), Cursor (MCP), Glama (MCP), Perplexity, Microsoft Copilot / Bing, Google Gemini / Vertex, Mistral, Meta AI, Apple Intelligence surfaces, Amazon Q tooling, DuckAssist, You.com, Cohere, and other MCP/OpenAPI-capable assistants. Import the catalog or Worker OpenAPI as a GPT Action, custom HTTP tool, or custom OpenAPI tool. MCP clients (Cursor, Glama, Claude, and others): \`POST\` the catalog MCP endpoint.
@@ -99,8 +105,9 @@ Author: **Aziel Eliab**. Honest scope: Timeslate lattice × StaticClock. AZ-OS i
 - This Worker skill: \`GET https://temporallock-download-tracker.vibelock.workers.dev/v1/skill\`
 - This Worker OpenAPI: https://temporallock-download-tracker.vibelock.workers.dev/openapi.json
 - Sample payload: \`GET https://temporallock-download-tracker.vibelock.workers.dev/v1/example\`
+- Suite mesh: \`GET https://temporallock-download-tracker.vibelock.workers.dev/v1/mesh\` (PROXY; default OFF)
 
-Local UI: **Import JSON file** (\`type=file\`) and **Export JSON**. Then \`temporallock doctor\`.
+Local UI: **Import JSON file** (\`type=file\`) and **Export JSON**. Then \`temporallock doctor\`. Worker homepage Live Nodes strip polls \`GET /v1/mesh\` (default OFF).
 
 Works with ChatGPT (GPT Actions / OpenAI), Grok (xAI), Venice, Claude (Anthropic), Cursor (MCP), Glama (MCP), Perplexity, Microsoft Copilot / Bing, Google Gemini / Vertex, Mistral, Meta AI, Apple Intelligence surfaces, Amazon Q tooling, DuckAssist, You.com, Cohere, and other MCP/OpenAPI-capable assistants. Import catalog or Worker OpenAPI as a GPT Action, custom HTTP tool, or custom OpenAPI tool. MCP clients: \`POST https://aziel-runtime.vibelock.workers.dev/mcp\`.
 
@@ -114,8 +121,8 @@ const CONF_PLACEHOLDER = "__TL_CONFIDENCE__";
 function corsHeaders() {
   return {
     "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Methods": "GET, POST, HEAD, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization, X-Aziel-Runtime-Token, User-Agent",
   };
 }
 
@@ -547,7 +554,7 @@ function openapiSpec() {
     info: {
       title: "TemporalLock runtime",
       version: VERSION,
-      description: "Immutable timeslate lattice hash-chained against StaticClock. AZ-OS integrity log. Client sends the chain JSON (stateless). " + MOTTO + " Author " + AUTHOR + ".",
+      description: "Immutable timeslate lattice hash-chained against StaticClock. AZ-OS integrity log. Client sends the chain JSON (stateless). " + MOTTO + " Suite mesh /v1/mesh/* PROXY to aziel-runtime (AZIEL_RUNTIME). Default OFF. QNM-BUILD-1.0 live|locked|isolated. No Node Gate. No auto-heal. Not anonymity. Author " + AUTHOR + ".",
     },
     servers: [{ url: HOST }],
     paths: {
@@ -625,6 +632,7 @@ function openapiSpec() {
           responses: { "200": { description: "gate", content: { "application/json": { schema: { type: "object" } } } } },
         },
       },
+      ...meshOpenApiPaths(),
     },
   };
 }
@@ -661,14 +669,16 @@ function aiHtml() {
   <p><code>${HOST}/openapi.json</code></p>
   <p>Custom tools can also point at <code>POST ${HOST}/v1/genesis</code>, <code>/v1/append</code>, <code>/v1/verify</code>, <code>/v1/gate</code>.</p>
   <h2>MCP catalog</h2>
-  <p>MCP clients (Cursor, Glama, Claude, and others) use the shared catalog (ships separately): <code>https://aziel-runtime.vibelock.workers.dev/mcp</code>.</p>
-  <p><a href="/openapi.json">openapi.json</a> · <a href="/v1/health">health</a> · <a href="/">TemporalLock software</a> · <a href="/cite.json">cite.json</a></p>
+  <p>MCP clients (Cursor, Glama, Claude, and others) use the shared catalog (ships separately): <code>https://aziel-runtime.vibelock.workers.dev/mcp</code> (catalog <code>mesh_*</code> + FragGate <code>slug=mesh</code>).</p>
+  <p>Suite mesh: <code>GET ${HOST}/v1/mesh</code> PROXY to aziel-runtime. Default OFF. QNM-BUILD-1.0 live|locked|isolated. No Node Gate. No auto-heal. Not anonymity. Author: Aziel Eliab only.</p>
+  <p><a href="/openapi.json">openapi.json</a> · <a href="/v1/health">health</a> · <a href="/v1/mesh">/v1/mesh</a> · <a href="/">TemporalLock software</a> · <a href="/cite.json">cite.json</a></p>
 </body>
 </html>`;
 }
 
 export async function handleRuntimeApi(request, url) {
   const path = url.pathname;
+  if (path === "/v1/mesh" || path.startsWith("/v1/mesh/")) return null;
   const isApi = path === "/v1" || path.startsWith("/v1/") || path === "/openapi.json" || path === "/ai";
   if (!isApi) return null;
   try {
@@ -682,6 +692,7 @@ export async function handleRuntimeApi(request, url) {
         motto: MOTTO,
         staticclock: STATICCLOCK_HOST,
         azos: AZOS_HOST,
+        mesh: meshPointer(),
         note: "AZ-OS integrity lattice. Hosted /v1 does not run AZ-OS and does not store chains.",
       });
     }

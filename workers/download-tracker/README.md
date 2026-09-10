@@ -13,5 +13,8 @@ GET `/count` returns `{project, views, downloads, total}`. Does not increment vi
 GET `/install.sh` one-click install (does not increment; script curls `/download`).
 GET `/v1/skill` returns skill markdown (`text/markdown`). Does not increment views or downloads.
 GET `/cite.json`, `/sitemap.xml`, `/robots.txt`, `/llms.txt` are SEO / cite surfaces. Do not increment downloads.
+`/v1/mesh/*` PROXY to aziel-runtime suite mesh (`AZIEL_RUNTIME` / `https://aziel-runtime.vibelock.workers.dev`). Default OFF. QNM-BUILD-1.0 live|locked|isolated. No Node Gate. No auto-heal. Not anonymity. Human UI Live Nodes strip polls `GET /v1/mesh`.
+
+Verify: `curl -sS -A 'Mozilla/5.0' https://temporallock-download-tracker.vibelock.workers.dev/v1/mesh/status` returns MESH-OK style JSON with `enabled: false` by default.
 
 Host: https://temporallock-download-tracker.vibelock.workers.dev

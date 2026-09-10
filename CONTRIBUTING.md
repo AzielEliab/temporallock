@@ -49,8 +49,11 @@ pytest is the dev extra. No network.
 7. **Honest AZ-OS role.** TemporalLock is the integrity lattice AZ-OS
    prefab hooks may write. It is not a kernel and does not execute
    software. Do not claim hosted `/v1` runs AZ-OS.
-8. New behavior needs a test that fails without the change.
-9. **Evidence is required.** Empty evidence is invalid. Confidence is
+8. **Door vs local op.** `/v1/mesh/*` PROXY to aziel-runtime. Local ops are `/v1/{op}` only.
+   Suite mesh default OFF; QNM rollup live|locked|isolated; no Node Gate;
+   no auto-heal; not anonymity.
+9. New behavior needs a test that fails without the change.
+10. **Evidence is required.** Empty evidence is invalid. Confidence is
    `[0.0, 1.0]` inclusive, assigned by the observer — not computed as
    a claim about the world.
 
@@ -62,6 +65,8 @@ pytest is the dev extra. No network.
 - Chain load/append/verify/lattice/forks: `temporallock/chain.py`
 - CLI: `temporallock/cli.py`
 - Errors: `temporallock/errors.py`
+- Isolated counter: `workers/download-tracker/`
+- Suite mesh / QNM Live Nodes: `workers/download-tracker/src/mesh.js` (`/v1/mesh/*` PROXY to aziel-runtime).
 
 ## Reporting downloads from a fork
 

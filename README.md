@@ -47,6 +47,7 @@ The Worker serves the gzip itself (HTTP 200, no 302 to GitHub).
 - Direct tarball: [temporallock-0.2.0.tar.gz](https://temporallock-download-tracker.vibelock.workers.dev/download?asset=temporallock-0.2.0.tar.gz)
 - One-click install: [https://temporallock-download-tracker.vibelock.workers.dev/install.sh](https://temporallock-download-tracker.vibelock.workers.dev/install.sh)
 - Skill: [https://temporallock-download-tracker.vibelock.workers.dev/v1/skill](https://temporallock-download-tracker.vibelock.workers.dev/v1/skill)
+- Suite mesh proxy: [https://temporallock-download-tracker.vibelock.workers.dev/v1/mesh](https://temporallock-download-tracker.vibelock.workers.dev/v1/mesh) — default OFF; QNM live / locked / isolated
 - OpenAPI: [https://temporallock-download-tracker.vibelock.workers.dev/openapi.json](https://temporallock-download-tracker.vibelock.workers.dev/openapi.json)
 - GitHub: [https://github.com/AzielEliab/temporallock](https://github.com/AzielEliab/temporallock)
 - Cite: [cite.json](https://temporallock-download-tracker.vibelock.workers.dev/cite.json) — Eliab, Aziel. (2026). TemporalLock 0.2.0 [Software]. Apache-2.0. Historical DOI 10.5281/zenodo.21431405 is tombstoned; no DOI is invented here.
@@ -296,7 +297,7 @@ https://temporallock-download-tracker.vibelock.workers.dev/openapi.json
 
 Setup notes: [https://temporallock-download-tracker.vibelock.workers.dev/ai](https://temporallock-download-tracker.vibelock.workers.dev/ai)
 
-MCP catalog (Cursor, Glama, Claude, and other MCP clients; ships separately): `https://aziel-runtime.vibelock.workers.dev/mcp`
+MCP catalog (Cursor, Glama, Claude, and other MCP clients; ships separately): `https://aziel-runtime.vibelock.workers.dev/mcp`. Suite mesh `/v1/mesh/*` PROXY via `AZIEL_RUNTIME` (default OFF; QNM-BUILD-1.0 live|locked|isolated; no Node Gate). Catalog MCP `mesh_*` + FragGate `slug=mesh`.
 
 ```bash
 curl -sS -X POST https://temporallock-download-tracker.vibelock.workers.dev/v1/genesis \

@@ -246,6 +246,12 @@ chains. Verification remains mechanical: hashes and links, not truth.
 CLI additions: `temporallock lattice`, `temporallock timeslate`,
 `temporallock click`.
 
+The Worker homepage shows a suite Live Nodes strip. `/v1/mesh/*` PROXY
+to aziel-runtime. Suite mesh default OFF. QNM rollup is
+live|locked|isolated counts only. No Node Gate. No auto-heal. Not an
+anonymity network. Anon-broadcast is not a publish path. TemporalLock
+remains an immutable timeslate lattice (AZ-OS integrity log, not a kernel).
+
 Author remains **Aziel Eliab** only.
 
 ---
