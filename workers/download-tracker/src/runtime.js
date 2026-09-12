@@ -651,12 +651,10 @@ function aiHtml() {
   .motto { color: #d4af37; font-style: italic; }
   .brandrow{display:flex;align-items:center;gap:12px;margin:0 0 10px}
   .brandmark{width:40px;height:40px;border-radius:10px;object-fit:cover;flex:0 0 auto;box-shadow:0 0 0 1px #d4af3733}
-  .stamp{margin:0;color:#d4af37;font-size:.88rem}
 </style>
 <body>
   <div class="brandrow">
-    <img class="brandmark" src="/sigil.png" width="40" height="40" alt="Everblooming sigil — Aziel Eliab" decoding="async">
-    <p class="stamp">Everblooming sigil · Aziel Eliab</p>
+    <img class="brandmark" src="/sigil.png" width="40" height="40" alt="" decoding="async">
   </div>
   <h1>TemporalLock live API</h1>
   <p class="motto">${MOTTO}</p>

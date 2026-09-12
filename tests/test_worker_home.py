@@ -6,6 +6,7 @@ from pathlib import Path
 
 HOME = Path("workers/download-tracker/src/home.js").read_text(encoding="utf-8")
 INDEX = Path("workers/download-tracker/src/index.js").read_text(encoding="utf-8")
+RUNTIME = Path("workers/download-tracker/src/runtime.js").read_text(encoding="utf-8")
 
 
 def test_title_is_product_not_downloads_shell() -> None:
@@ -20,8 +21,19 @@ def test_seo_and_softwareapplication_json_ld() -> None:
     assert "Aziel Eliab" in HOME
     assert "cite.json" in HOME
     assert "sitemap.xml" in HOME
-    assert "Everblooming sigil" in HOME
     assert "/sigil.png" in HOME
+    assert 'alt=""' in HOME
+    assert "Everblooming" not in HOME
+    assert "everblooming" not in HOME
+    assert "Everblooming sigil" not in HOME
+    assert 'class="stamp"' not in HOME
+    assert "/sigil.png" in RUNTIME
+    assert 'alt=""' in RUNTIME
+    assert "Everblooming" not in RUNTIME
+    assert "everblooming" not in RUNTIME
+    assert 'class="stamp"' not in RUNTIME
+    assert 'src="/sigil.png" width="40" height="40" alt=""' in HOME
+    assert 'src="/sigil.png" width="40" height="40" alt=""' in RUNTIME
 
 
 def test_workspace_calls_real_ops() -> None:
@@ -70,3 +82,15 @@ def test_count_returns_project_views_downloads_total() -> None:
 def test_download_increment_updates_total_key() -> None:
     block = INDEX.split("async function increment(env, dims)")[1].split("async function listAllKeys")[0]
     assert "totalKey()" in block
+
+
+def test_public_brand_mark_has_empty_alt_and_no_everblooming_stamp() -> None:
+    sigil = Path("workers/download-tracker/public/sigil.png")
+    assert sigil.is_file()
+    size = sigil.stat().st_size
+    assert 74000 < size < 76000
+    assert size == 75035
+    assert "/v1/verify" in HOME
+    assert "/v1/verify" in RUNTIME
+    assert "Aziel Eliab only" in HOME
+    assert "Aziel Eliab" in RUNTIME

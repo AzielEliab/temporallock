@@ -6,7 +6,7 @@ KV namespace `TEMPORALLOCK_DOWNLOADS` bound as `DOWNLOADS`.
 Does **not** 302 to GitHub on `/download`. Serves gzip via `ASSETS.fetch`,
 `Cache-Control: private, no-store`.
 
-GET `/` is the product homepage (workspace + counted download). Increments a **page-view** counter (separate from downloads).
+GET `/` is the product homepage (workspace + counted download). Official `/sigil.png` (~75035) is shown top-left with empty `alt=""` and no public Everblooming stamp/title. Increments a **page-view** counter (separate from downloads).
 GET `/download` increments **downloads**.
 GET `/count` returns `{project, views, downloads, total}`. Does not increment views or downloads.
 `/v1` never increments DOWNLOADS KV.
