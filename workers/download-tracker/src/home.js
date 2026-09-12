@@ -295,7 +295,6 @@ export function renderHome(stats) {
     width: 40px; height: 40px; border-radius: 10px; object-fit: cover; flex: 0 0 auto;
     box-shadow: 0 0 0 1px #d4af3733;
   }
-  .stamp { margin: 0; color: var(--gold); font-size: .88rem; letter-spacing: .02em; }
   .appbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap; }
   h1 { font-size: 2rem; letter-spacing: .02em; margin: 0 0 .2rem; }
   .motto { color: var(--gold); font-style: italic; margin: 0 0 .7rem; }
@@ -401,8 +400,7 @@ export function renderHome(stats) {
   <div class="wrap">
     <header>
       <div class="brandrow">
-        <img class="brandmark" src="/sigil.png" width="40" height="40" alt="Everblooming sigil — Aziel Eliab" decoding="async">
-        <p class="stamp">Everblooming sigil · Aziel Eliab</p>
+        <img class="brandmark" src="/sigil.png" width="40" height="40" alt="" decoding="async">
       </div>
       <div class="appbar">
         <div>
