@@ -18,3 +18,15 @@ GET `/cite.json`, `/sitemap.xml`, `/robots.txt`, `/llms.txt` are SEO / cite surf
 Verify: `curl -sS -A 'Mozilla/5.0' https://temporallock-download-tracker.vibelock.workers.dev/v1/mesh/status` returns MESH-OK style JSON with `enabled: false` by default.
 
 Host: https://temporallock-download-tracker.vibelock.workers.dev
+
+## Human / bot schema (`/stats` and `/count`)
+
+Additive dual-count (Whitestone canary). Classification lives in `src/classify.js`
+and response shaping in `src/stats-shape.js`.
+
+Invariant: `views === views_human + views_bot` and
+`downloads === downloads_human + downloads_bot`.
+
+Legacy strategy (b): existing KV totals are never reset. Pre-split remainder
+is shown as bot on read (`views_bot = views - views_human`). Author: Aziel Eliab only.
+
