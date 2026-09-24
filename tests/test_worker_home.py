@@ -80,7 +80,7 @@ def test_count_returns_project_views_downloads_total() -> None:
 
 
 def test_download_increment_updates_total_key() -> None:
-    block = INDEX.split("async function increment(env, dims)")[1].split("async function listAllKeys")[0]
+    block = INDEX.split("async function increment(env, dims, request)")[1].split("async function listAllKeys")[0]
     assert "totalKey()" in block
 
 

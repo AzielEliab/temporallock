@@ -27,6 +27,6 @@ python -m pip install -e .
 
 echo
 echo "Installed TemporalLock."
-echo "Run:  temporallock ui"
-echo "Then open http://127.0.0.1:8766  (loopback only)"
-echo "Author: Aziel Eliab."
+echo "Open the app:  temporallock ui"
+echo "Then open http://127.0.0.1:8766/"
+echo "Author: Aziel Eliab"

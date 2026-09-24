@@ -40,6 +40,22 @@ def test_ui_get_root_200_contains_temporallock() -> None:
         assert b"timeslate" in html.lower()
         assert b"StaticClock" in html
         assert b"127.0.0.1" in html
+        assert b"prefers-color-scheme" in html
+        assert b":focus-visible" in html
+        assert b"#c9a227" in html
+        assert b"Advanced" in html
+        assert b"Write first receipt" in html
+        assert b"not a kernel" not in html.lower()
+        assert b"what this is not" not in html.lower()
+        req = urllib.request.Request(
+            f"http://127.0.0.1:{port}/",
+            headers={"Accept": "application/json"},
+        )
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            home = json.loads(resp.read().decode("utf-8"))
+        assert home["ok"] is True
+        assert home["author"] == "Aziel Eliab"
+        assert home["role"] == "immutable timeslate lattice"
         with urllib.request.urlopen(f"http://127.0.0.1:{port}/health", timeout=5) as resp:
             payload = json.loads(resp.read().decode("utf-8"))
         assert payload["ok"] is True

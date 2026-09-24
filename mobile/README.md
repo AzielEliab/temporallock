@@ -1,36 +1,31 @@
 # TemporalLock — iPhone & Android
 
-Genesis, append, and verify an immutable timeslate lattice on device.
-Each timeslate is a receipt bound to a StaticClock gear-click. Evidence
-required. Confidence in [0,1]. No rollbacks.
+Record observation receipts on this device. Each receipt stays.
 
-Offline. No analytics. Dark matte / gold.
+**Author:** Aziel Eliab
 
-Application id: `com.azieeliab.temporallock`
+## Start
 
-## Open in Android Studio / Xcode
+1. From `mobile/`, create the platform folders and fetch packages:
+   ```bash
+   cd mobile
+   flutter create --org com.azieeliab --project-name temporallock .
+   flutter pub get
+   ```
+2. Run the app: `flutter run`
+3. Write a receipt. Confidence and the link check are under Advanced.
 
-The `android/` and `ios/` folders here are skeleton READMEs because
-this tree was written without the Flutter SDK on PATH.
+The `android/` and `ios/` folders here are skeleton READMEs until `flutter create .` runs. Then open `android/` in Android Studio, or `ios/Runner.xcworkspace` in Xcode.
 
-```bash
-cd mobile
-flutter create --org com.azieeliab --project-name temporallock .
-flutter pub get
-flutter run
-```
+Application id: `com.azieeliab.temporallock`. Offline. No analytics. The app follows the system light or dark setting.
 
-Then open `android/` in Android Studio, or `ios/Runner.xcworkspace` in
-Xcode.
+## Notes
 
-## Honest scope
+A timeslate is a receipt stored on the device. Forks stay side by side. A correction is a new receipt.
 
-Timeslates are not truth claims, verdicts, or official history. This is
-an AZ-OS integrity log on device — not a kernel. No consensus, mining, or tokens.
+## Desktop package
 
-## Desktop package (counted download)
-
-This phone app does not replace the desktop package.
+The phone app sits beside the desktop package.
 
 # → https://temporallock-download-tracker.vibelock.workers.dev/ ←
 

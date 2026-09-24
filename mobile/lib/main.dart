@@ -19,7 +19,9 @@ class TemporalLockApp extends StatelessWidget {
     return MaterialApp(
       title: 'TemporalLock',
       debugShowCheckedModeBanner: false,
-      theme: buildAppTheme(),
+      theme: buildLightTheme(),
+      darkTheme: buildDarkTheme(),
+      themeMode: ThemeMode.system,
       home: const ChainPage(),
     );
   }
@@ -67,7 +69,7 @@ class _ChainPageState extends State<ChainPage> {
   final _evidence = TextEditingController();
   final _confidence = TextEditingController(text: '0.7');
   final _chain = <Receipt>[];
-  String _verify = 'no chain yet';
+  String _status = 'No receipts yet. Write the first one below.';
 
   @override
   void dispose() {
@@ -79,25 +81,18 @@ class _ChainPageState extends State<ChainPage> {
 
   String _now() => DateTime.now().toUtc().toIso8601String().split('.').first + 'Z';
 
-  void _mint({required bool genesis}) {
+  void _write() {
     final evidence = _evidence.text;
     if (evidence.trim().isEmpty) {
-      setState(() => _verify = 'empty evidence is invalid');
-      return;
-    }
-    if (genesis && _chain.isNotEmpty) {
-      setState(() => _verify = 'genesis refused: chain already exists (append only)');
-      return;
-    }
-    if (!genesis && _chain.isEmpty) {
-      setState(() => _verify = 'append refused: run genesis first');
+      setState(() => _status = 'Evidence is required. Add a note or a path, then try again.');
       return;
     }
     final conf = double.tryParse(_confidence.text);
     if (conf == null || conf < 0 || conf > 1) {
-      setState(() => _verify = 'confidence must be a float in [0.0, 1.0]');
+      setState(() => _status = 'Confidence needs to be a number from 0 to 1. Set it under Advanced, then try again.');
       return;
     }
+    final genesis = _chain.isEmpty;
     final ts = _now();
     final prev = genesis ? genesisPrev : _chain.last.hash;
     final h = digest(ts, _summary.text, evidence, conf, prev);
@@ -112,68 +107,60 @@ class _ChainPageState extends State<ChainPage> {
       ));
       _summary.clear();
       _evidence.clear();
-      _verify = _runVerify();
+      _status = genesis
+          ? 'First receipt saved. Add another when you have a new observation.'
+          : 'Receipt added. Earlier receipts stay as they were.';
     });
   }
 
   String _runVerify() {
-    if (_chain.isEmpty) return 'no chain yet';
+    if (_chain.isEmpty) return 'No receipts yet. Write the first one, then check links.';
     for (var i = 0; i < _chain.length; i++) {
       final r = _chain[i];
-      if (!r.hashOk) return 'BROKEN at $i: hash mismatch';
+      if (!r.hashOk) return 'These receipts do not link. The hash at $i does not match. Next: add a correction as a new receipt.';
       final expectPrev = i == 0 ? genesisPrev : _chain[i - 1].hash;
-      if (r.prevHash != expectPrev) return 'BROKEN at $i: prev_hash link';
+      if (r.prevHash != expectPrev) return 'These receipts do not link. The link at $i is broken. Next: add a correction as a new receipt.';
     }
-    return 'OK  ${_chain.length} receipt(s). Receipts, not truth claims.';
+    final n = _chain.length;
+    final noun = n == 1 ? 'receipt' : 'receipts';
+    return 'Links check out. $n $noun on this chain.';
   }
 
   @override
   Widget build(BuildContext context) {
+    final primary = _chain.isEmpty ? 'Write first receipt' : 'Add receipt';
     return Scaffold(
-      appBar: AppBar(title: const Text('TemporalLock')),
+      appBar: AppBar(
+        title: const Text('TemporalLock'),
+        actions: const [
+          Padding(
+            padding: EdgeInsets.only(right: 16),
+            child: Center(child: Text('Aziel Eliab')),
+          ),
+        ],
+      ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
         children: [
-          const Text(
-            'Immutable timeslate lattice. Receipts, not truth claims.',
-            style: TextStyle(color: kGold, fontStyle: FontStyle.italic, fontSize: 16),
-          ),
+          Text('Record a receipt', style: Theme.of(context).textTheme.headlineSmall),
           const SizedBox(height: 8),
-          const Text(
-            'On-device append-only lattice. A timeslate is a receipt bound to '
-            'a StaticClock gear-click. Not a verdict, not a kernel. '
-            'Corrections are new timeslates. No modify, no delete, no rollbacks.',
-          ),
+          const Text('Write what you observed. TemporalLock keeps it on this device.'),
           const SizedBox(height: 16),
           TextField(controller: _summary, decoration: const InputDecoration(labelText: 'Summary')),
           const SizedBox(height: 8),
           TextField(
             controller: _evidence,
             maxLines: 3,
-            decoration: const InputDecoration(labelText: 'Evidence (required)', alignLabelWithHint: true),
-          ),
-          const SizedBox(height: 8),
-          TextField(
-            controller: _confidence,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(labelText: 'Confidence [0.0, 1.0]'),
+            decoration: const InputDecoration(labelText: 'Evidence', alignLabelWithHint: true),
           ),
           const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              FilledButton(onPressed: () => _mint(genesis: true), child: const Text('Genesis')),
-              FilledButton(onPressed: () => _mint(genesis: false), child: const Text('Append')),
-              OutlinedButton(
-                onPressed: () => setState(() => _verify = _runVerify()),
-                child: const Text('Verify'),
-              ),
-            ],
-          ),
+          FilledButton(onPressed: _write, child: Text(primary)),
           const SizedBox(height: 12),
-          Text(_verify, style: const TextStyle(color: kGold)),
+          Text(_status),
           const SizedBox(height: 16),
+          Text('Receipts', style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 8),
+          if (_chain.isEmpty) const Text('Nothing recorded on this device yet.'),
           for (var i = 0; i < _chain.length; i++)
             Card(
               margin: const EdgeInsets.only(bottom: 10),
@@ -181,16 +168,42 @@ class _ChainPageState extends State<ChainPage> {
                 padding: const EdgeInsets.all(12),
                 child: SelectableText(
                   [
-                    '#$i  ${_chain[i].timestamp}  conf=${_conf(_chain[i].confidence)}',
+                    '#$i  ${_chain[i].timestamp}',
                     _chain[i].summary,
-                    'evidence: ${_chain[i].evidence}',
-                    'prev: ${_chain[i].prevHash.substring(0, 16)}…',
-                    'hash: ${_chain[i].hash}',
+                    _chain[i].evidence,
+                    _chain[i].hash,
                   ].join('\n'),
                   style: const TextStyle(fontFamily: 'monospace', fontSize: 12, height: 1.4),
                 ),
               ),
             ),
+          const SizedBox(height: 8),
+          ExpansionTile(
+            title: const Text('Advanced'),
+            childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+            children: [
+              TextField(
+                controller: _confidence,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                decoration: const InputDecoration(labelText: 'Confidence, from 0 to 1'),
+              ),
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: OutlinedButton(
+                  onPressed: () => setState(() => _status = _runVerify()),
+                  child: const Text('Check links'),
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'A timeslate is a receipt stored on this device. Author: Aziel Eliab.',
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
