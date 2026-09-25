@@ -1,0 +1,7 @@
+TemporalLock — Aziel Eliab
+
+1. python -m venv .venv && source .venv/bin/activate && pip install -e .
+2. temporallock ui
+3. Open http://127.0.0.1:8766 and write a receipt.
+
+temporallock doctor checks the install. temporallock --help lists commands.

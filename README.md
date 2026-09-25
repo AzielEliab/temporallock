@@ -1,28 +1,25 @@
 # TemporalLock
 
-Open-source **immutable timeslate lattice** — append-only observation
-receipts hash-chained against the [StaticClock](https://github.com/AzielEliab/staticclock)
-gear-click timeline (no rollbacks). This is the **AZ-OS integrity log**:
-prefab OS hooks may write timeslates here. TemporalLock does not run a
-kernel, does not schedule, and does not score truth.
+Record observation receipts on a local chain. Each receipt stays.
 
 **Author:** Aziel Eliab
-**Date:** July 2026 · lattice v0.2.0
 **License:** [Apache-2.0](LICENSE)
 
-> Immutable timeslate lattice. Receipts, not truth claims.
+## Start
 
-See the spec: [docs/whitepaper.md](docs/whitepaper.md).
-How to contribute: [CONTRIBUTING.md](CONTRIBUTING.md).
+1. Install:
+   ```bash
+   python -m venv .venv && source .venv/bin/activate && pip install -e .
+   ```
+2. Open the app:
+   ```bash
+   temporallock ui
+   ```
+3. In the browser, open http://127.0.0.1:8766 and write a receipt.
 
-**Forks are welcome and always allowed.**
+`temporallock` alone prints these next steps. `temporallock doctor` checks the install. `temporallock --help` lists commands.
 
-## Quick start
-
-```bash
-python -m venv .venv && source .venv/bin/activate && pip install -e ".[dev]"
-temporallock ui
-```
+A timeslate is a receipt tied to a [StaticClock](https://github.com/AzielEliab/staticclock) gear-click. AZ-OS prefab hooks may write here. Spec: [docs/whitepaper.md](docs/whitepaper.md). Contributing: [CONTRIBUTING.md](CONTRIBUTING.md). July 2026 · version 0.2.0. Forks are welcome and always allowed.
 
 
 ## One-click install
@@ -64,7 +61,7 @@ File gate: `temporallock gate FILE` hashes the file, appends a timeslate bound t
 
 **AZ-OS** (prefab OS hooks; integrity precedes execution): [https://azos-download-tracker.vibelock.workers.dev/](https://azos-download-tracker.vibelock.workers.dev/)
 
-Honest AZ-OS role: TemporalLock is the integrity lattice those hooks write into. Hosted `/v1` does not execute software, does not halt a kernel, and does not store chains.
+AZ-OS role: TemporalLock is the integrity lattice those hooks write into. Hosted `/v1` answers the request you send and leaves the chain with the caller.
 
 
 
@@ -92,16 +89,16 @@ Direct tarball (also counted): [temporallock-0.2.0.tar.gz](https://temporallock-
 
 ## Local UI
 
-`temporallock ui` serves a loopback dashboard at http://127.0.0.1:8766
+`temporallock ui` prints `Open http://127.0.0.1:8766/` and serves the page on this computer only.
 
-Binds to `127.0.0.1` only. Self-contained HTML (no CDN). Genesis / append / verify / lattice a local timeslate chain in a process tmp dir. Receipts, not truth claims.
+Write one receipt on the page. Confidence, click index, link checks, timeslate binds, import, and export are under **Advanced**. The page follows the system light or dark setting. The chain for that session is removed when you stop the app.
 
 
 ## iPhone & Android
 
-Flutter sources: [`mobile/`](mobile/). Application id `com.azieeliab.temporallock`. Offline. No analytics. Dark matte / gold.
+Flutter sources: [`mobile/`](mobile/). Application id `com.azieeliab.temporallock`. Offline. No analytics. Follows the system light or dark setting, with a gold accent.
 
-Genesis / append / verify a timeslate lattice on device. Receipts, not truth claims.
+Write one receipt on device. Confidence and the link check are under Advanced.
 
 ```bash
 cd mobile
@@ -115,8 +112,7 @@ The `android/` and `ios/` folders in this tree are skeleton READMEs until you ru
 ## What it does
 
 TemporalLock records **timeslates**. A timeslate is a receipt bound to
-one StaticClock gear-click. The receipt is still an observer's note —
-not a verdict, not a score of truth, and not an official history.
+one StaticClock gear-click. The receipt is the observer's note.
 
 Each receipt is cryptographically linked to the previous one
 (`prev_hash` = SHA-256 of the prior receipt). v0.2.0 also binds a
@@ -125,8 +121,7 @@ Each receipt is cryptographically linked to the previous one
 `click_index` is a StaticClock rollback and is refused.
 
 The sequence cannot be altered without detection. Breaks are immediately
-visible. Divergent chains (forks) are valid and detectable. TemporalLock
-does not pick a winner.
+visible. Divergent chains (forks) are valid and detectable. Forks stay side by side.
 
 There is no modify and no delete. `chain.append(...)` only. A
 correction or dispute is a **new timeslate** that may mention a prior
@@ -155,7 +150,7 @@ core fields only so chains stay verifiable long-term.
 
 | Field | Meaning |
 |-------|---------|
-| `staticclock_click` | SHA-256 of a StaticClock-shaped gear-click (local digest; TemporalLock does not call StaticClock) |
+| `staticclock_click` | SHA-256 of a StaticClock-shaped gear-click (local digest, computed on this computer) |
 | `click_index` | Monotonic integer. Must not decrease. Same index = same click (forks allowed). |
 | `prev_timeslate_hash` | Previous timeslate hash, or the prior receipt hash as a v0.1.0 bridge |
 | `timeslate_hash` | SHA-256 of `click_index`, `prev_timeslate_hash`, `receipt_hash`, `staticclock_click` |
@@ -202,8 +197,13 @@ python -m pip install temporallock-0.2.0.tar.gz
 ## CLI
 
 ```bash
+temporallock            # welcome and next steps
+temporallock --help
 temporallock version
-temporallock ui        # localhost UI on 127.0.0.1:8766
+temporallock ui          # prints Open http://127.0.0.1:8766/
+temporallock doctor
+temporallock verify notes.jsonl
+temporallock verify notes.jsonl --json
 
 # First receipt (explicit genesis; append will not create a missing file)
 temporallock genesis --chain notes.jsonl --summary "sky was overcast" \
@@ -220,8 +220,7 @@ temporallock timeslate --chain notes.jsonl --summary "hook fired" --evidence "az
 temporallock click --timestamp 2026-07-12T14:30:00Z
 ```
 
-`verify` exits 0 if the chain is intact, nonzero if broken. No special
-access required. Anyone can recompute hashes from the fields.
+`verify` exits 0 if the chain is intact, nonzero if broken. Add `--json` when a program should read verify, lattice, click, gate, or doctor. `temporallock click --json FILE` also mixes that JSON object into the click. Anyone can recompute hashes from the fields.
 
 Library:
 
@@ -275,13 +274,9 @@ CONTRIBUTING.md        forks are first-class
 mobile/              Flutter iPhone + Android (`flutter create .`)
 ```
 
-## What this is not
+## Notes
 
-TemporalLock does not add consensus, mining, tokens, or "truth scores".
-It does not interpret summaries. It does not declare a canonical fork.
-It is not a kernel, not AZ-OS itself, not a scheduler, and not a remote
-shell. Hosted `/v1` does not run AZ-OS. It is a receipt / timeslate log,
-not an oracle.
+TemporalLock keeps an append-only timeslate lattice. Forks stay side by side. A later receipt can mention an earlier hash. Hosted `/v1` answers the request you send and does not store the chain. Author: Aziel Eliab.
 
 ## Use with AI assistants
 

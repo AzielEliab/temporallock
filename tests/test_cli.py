@@ -56,7 +56,7 @@ def test_cli_genesis_append_verify(tmp_path: Path, capsys) -> None:
     out = capsys.readouterr().out
     assert "appended" in out
 
-    rc = main(["verify", str(path)])
+    rc = main(["verify", str(path), "--json"])
     assert rc == 0
     payload = json.loads(capsys.readouterr().out)
     assert payload["ok"] is True
@@ -96,7 +96,7 @@ def test_cli_verify_detects_break(tmp_path: Path, capsys) -> None:
     obj = json.loads(text)
     obj["summary"] = "broken"
     path.write_text(json.dumps(obj) + "\n", encoding="utf-8")
-    rc = main(["verify", str(path)])
+    rc = main(["verify", str(path), "--json"])
     assert rc != 0
     payload = json.loads(capsys.readouterr().out)
     assert payload["ok"] is False
@@ -178,7 +178,7 @@ def test_cli_lattice_and_timeslate(tmp_path: Path, capsys) -> None:
     out = capsys.readouterr().out
     assert "genesis" in out
     assert "timeslate" in out
-    rc = main(["lattice", str(path)])
+    rc = main(["lattice", str(path), "--json"])
     payload = __import__("json").loads(capsys.readouterr().out)
     assert rc == 0
     assert payload["ok"] is True
@@ -187,7 +187,7 @@ def test_cli_lattice_and_timeslate(tmp_path: Path, capsys) -> None:
 
 
 def test_cli_click(capsys) -> None:
-    rc = main(["click", "--timestamp", "2026-07-12T14:30:00Z", "--click-index", "0"])
+    rc = main(["click", "--json", "--timestamp", "2026-07-12T14:30:00Z", "--click-index", "0"])
     assert rc == 0
     payload = __import__("json").loads(capsys.readouterr().out)
     assert payload["staticclock_click"]
@@ -209,3 +209,51 @@ def test_cli_gate_missing_file(tmp_path: Path, capsys) -> None:
     assert rc != 0
     err = capsys.readouterr().err
     assert "not found" in err.lower()
+    assert "next:" in err.lower()
+
+
+def test_cli_welcome_and_help(capsys) -> None:
+    assert main([]) == 0
+    welcome = capsys.readouterr().out
+    assert "temporallock ui" in welcome
+    assert "Aziel Eliab" in welcome
+    assert "arguments are required" not in welcome.lower()
+
+    assert main(["--help"]) == 0
+    help_text = capsys.readouterr().out
+    assert "commands:" in help_text
+    assert "advanced:" in help_text
+    assert "examples:" in help_text
+    assert "changelog" not in help_text.lower()
+
+
+def test_cli_unknown_command(capsys) -> None:
+    assert main(["bogus"]) == 2
+    err = capsys.readouterr().err
+    assert 'Unknown command "bogus"' in err
+    assert "temporallock --help" in err
+
+
+def test_cli_missing_genesis_args(capsys) -> None:
+    assert main(["genesis"]) == 2
+    err = capsys.readouterr().err
+    assert "--chain" in err
+    assert "Try:" in err
+
+
+def test_cli_verify_human_default(tmp_path: Path, capsys) -> None:
+    path = tmp_path / "notes.jsonl"
+    assert main(["genesis", "--chain", str(path), "--summary", "s", "--evidence", "e"]) == 0
+    capsys.readouterr()
+    assert main(["verify", str(path)]) == 0
+    out = capsys.readouterr().out
+    assert "Chain intact" in out
+    assert not out.lstrip().startswith("{")
+
+
+def test_cli_click_human_default(capsys) -> None:
+    assert main(["click", "--timestamp", "2026-07-12T14:30:00Z", "--click-index", "0"]) == 0
+    out = capsys.readouterr().out
+    assert "staticclock_click=" in out
+    assert "Aziel Eliab" in out
+    assert not out.lstrip().startswith("{")

@@ -26,125 +26,243 @@ PAGE = r"""<!DOCTYPE html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
 <title>TemporalLock</title>
 <style>
   :root {
-    --bg: #0f1419; --panel: #171e27; --ink: #e8edf2; --muted: #8b97a6;
-    --line: #2a3544; --gold: #d4bc6a; --focus: #7aa2d4; --bad: #d4534b;
-    --pass: #3dba7a;
+    color-scheme: light;
+    --bg: #f7f4ee;
+    --panel: #fffdf8;
+    --ink: #1a1814;
+    --muted: #4a453c;
+    --line: #e3d9c4;
+    --gold: #c9a227;
+    --field: #ffffff;
+    --bad: #8d1d1d;
+    --pass: #0d5c32;
+    --on-gold: #1a1408;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --bg: #12110e;
+      --panel: #1c1a16;
+      --ink: #f4efe6;
+      --muted: #d2c8b8;
+      --line: #3d362c;
+      --gold: #c9a227;
+      --field: #14120f;
+      --bad: #ffb4ab;
+      --pass: #9ee6b8;
+      --on-gold: #1a1408;
+    }
   }
   * { box-sizing: border-box; }
-  html, body {
-    margin: 0; padding: 0; background: var(--bg); color: var(--ink);
-    font-family: system-ui, "Segoe UI", sans-serif; line-height: 1.45;
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
   }
-  body { max-width: 46rem; margin: 0 auto; padding: 2.1rem 1.2rem 4rem; }
-  .tag {
-    font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.72rem;
-    letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);
+  .wrap {
+    width: min(40rem, 100%);
+    margin: 0 auto;
+    padding: 1.25rem 1rem 3rem;
   }
-  h1 { font-size: 2rem; font-weight: 650; letter-spacing: 0.04em; margin: 0.35rem 0 0.25rem; }
-  .motto { color: var(--gold); font-style: italic; margin: 0 0 0.85rem; font-size: 1.05rem; }
-  .lede { color: var(--muted); margin: 0 0 1.5rem; max-width: 40rem; }
-  fieldset {
-    border: 1px solid var(--line); border-radius: 10px; background: var(--panel);
-    padding: 1.1rem 1.15rem 1.2rem; margin: 0 0 1rem;
+  .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 1.75rem;
   }
-  legend {
-    font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.72rem;
-    letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); padding: 0 0.4rem;
+  .brand { margin: 0; font-weight: 650; letter-spacing: 0.01em; }
+  .author { margin: 0; color: var(--muted); font-size: 0.92rem; }
+  h1 { font-size: 1.75rem; font-weight: 650; letter-spacing: -0.02em; margin: 0 0 0.4rem; }
+  .lede { margin: 0 0 1.5rem; max-width: 38rem; }
+  label { display: block; font-weight: 600; margin: 0 0 0.85rem; }
+  .hint { display: block; font-weight: 450; color: var(--muted); margin-top: 0.15rem; }
+  input[type="text"], input[type="number"], textarea {
+    width: 100%;
+    margin-top: 0.35rem;
+    padding: 0.65rem 0.75rem;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--field);
+    color: var(--ink);
+    font: inherit;
   }
-  label { display: block; font-size: 0.92rem; margin: 0.85rem 0 0.3rem; }
-  label .kicker {
-    display: block; font-family: ui-monospace, Menlo, Consolas, monospace;
-    font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase;
-    color: var(--muted); margin-bottom: 0.12rem;
+  textarea { min-height: 6.5rem; resize: vertical; }
+  button, .advanced > summary, .about > summary {
+    font: inherit;
+    min-height: 44px;
   }
-  textarea, input[type="text"], input[type="number"] {
-    width: 100%; padding: 0.55rem 0.65rem; border: 1px solid var(--line);
-    border-radius: 6px; background: #10161d; color: var(--ink); font: inherit;
-  }
-  textarea:focus, input:focus { outline: 2px solid var(--focus); outline-offset: 1px; }
-  .actions { display: flex; gap: 0.65rem; flex-wrap: wrap; margin: 0 0 1.6rem; }
   button {
-    font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.85rem;
-    letter-spacing: 0.04em; padding: 0.65rem 1rem; border-radius: 8px;
-    border: 1px solid var(--ink); background: var(--ink); color: var(--bg);
-    cursor: pointer; font-weight: 650;
+    border-radius: 8px;
+    padding: 0.65rem 1rem;
+    cursor: pointer;
   }
-  button.ghost { background: transparent; color: var(--ink); }
-  h2 {
-    font-size: 1.05rem; letter-spacing: 0.08em; text-transform: uppercase;
-    color: var(--muted); font-weight: 600; margin: 0 0 0.7rem;
+  button.primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    border: 1px solid var(--gold);
+    background: var(--gold);
+    color: var(--on-gold);
+    font-weight: 650;
+    margin: 0.25rem 0 1.25rem;
+  }
+  button.ghost {
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--line);
+  }
+  :focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
   }
   .banner {
-    margin: 0 0 1rem; padding: 0.9rem 1rem; border-radius: 10px;
-    border: 1px solid var(--line); background: var(--panel); color: var(--muted);
+    margin: 0 0 1.5rem;
+    padding: 0.85rem 1rem;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: var(--panel);
   }
   .banner.ok { color: var(--pass); border-color: var(--pass); }
   .banner.bad { color: var(--bad); border-color: var(--bad); }
+  h2 { font-size: 1.05rem; font-weight: 650; margin: 0 0 0.75rem; }
   ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.65rem; }
   .receipt {
-    border: 1px solid var(--line); border-radius: 10px; background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--panel);
     padding: 0.85rem 1rem;
   }
-  .hash { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.75rem; word-break: break-all; color: var(--muted); }
-  .err { color: var(--bad); }
+  .receipt p { margin: 0.35rem 0 0; }
+  .when { color: var(--muted); font-size: 0.85rem; font-weight: 500; }
+  .hash {
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: 0.78rem;
+    overflow-wrap: anywhere;
+    color: var(--muted);
+  }
+  .empty { color: var(--muted); margin: 0; }
+  .err { color: var(--bad); margin: 0.75rem 0 0; }
+  .advanced { margin-top: 2rem; }
+  .advanced > summary, .about > summary {
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.7rem 0.9rem;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--panel);
+    font-weight: 650;
+  }
+  .advanced > summary::-webkit-details-marker,
+  .about > summary::-webkit-details-marker { display: none; }
+  .advanced > summary::after { content: "Show"; color: var(--muted); font-weight: 500; }
+  .advanced[open] > summary::after { content: "Hide"; }
+  .advanced-body, .about-body {
+    margin-top: 0.75rem;
+    padding: 0.2rem 0.15rem 0.4rem;
+  }
+  .row { display: flex; flex-direction: column; gap: 0.5rem; margin: 0.25rem 0 1rem; }
+  .file input { display: block; margin-top: 0.35rem; max-width: 100%; font: inherit; }
+  .about { margin-top: 0.75rem; }
+  .about-body p { margin: 0.4rem 0 0; overflow-wrap: anywhere; }
   footer { margin-top: 2rem; color: var(--muted); font-size: 0.88rem; }
-  .foot-note { font-style: italic; }
+  @media (min-width: 720px) {
+    .wrap { padding: 2rem 1.5rem 4rem; }
+    button.primary { width: auto; min-width: 14rem; }
+    .row { flex-direction: row; flex-wrap: wrap; }
+    .row button { width: auto; }
+  }
 </style>
 </head>
 <body>
-  <header>
-    <div class="tag">TemporalLock · __VERSION__ · timeslate lattice · loopback</div>
-    <h1>TemporalLock</h1>
-    <p class="motto">Immutable timeslate lattice. Receipts, not truth claims.</p>
-    <p class="lede">
-      Genesis, append, and verify a local timeslate lattice in a temporary directory
-      owned by this process. Each timeslate is a receipt hash-chained against a
-      StaticClock gear-click. No rollbacks. This is the AZ-OS integrity log —
-      prefab hooks may write here. It is not a kernel, not a scheduler, and not a
-      truth score. Bound to 127.0.0.1 only.
-    </p>
-    <p class="lede">StaticClock: __STATICCLOCK__ · AZ-OS: __AZOS__</p>
-  </header>
-
-  <form id="receipt-form" autocomplete="off">
-    <fieldset>
-      <legend>New receipt</legend>
-      <label for="summary"><span class="kicker">Summary</span> Brief note of what was observed.</label>
-      <input id="summary" type="text" placeholder="sky was overcast">
-      <label for="evidence"><span class="kicker">Evidence</span> Supporting body and/or URI. Required.</label>
-      <textarea id="evidence" rows="3" placeholder="photo:./sky.jpg"></textarea>
-      <label for="confidence"><span class="kicker">Confidence</span> Observer-assigned float in [0, 1].</label>
-      <input id="confidence" type="number" min="0" max="1" step="0.01" value="0.7">
-      <label for="click-index"><span class="kicker">StaticClock click index</span> Optional. Must not decrease (no rollbacks).</label>
-      <input id="click-index" type="number" min="0" step="1" placeholder="auto">
-    </fieldset>
-    <div class="actions">
-      <button type="button" id="genesis">Genesis</button>
-      <button type="button" id="append">Append</button>
-      <button type="button" class="ghost" id="verify">Verify</button>
-      <button type="button" class="ghost" id="lattice">Lattice</button>
-      <label class="ghost">Import JSON <input type="file" id="import-json" accept="application/json,.json,.jsonl"></label>
-      <button type="button" class="ghost" id="export">Export JSON receipts</button>
-    </div>
-  </form>
-
-  <div id="banner" class="banner">No timeslates yet. Genesis writes the first lattice node.</div>
-  <h2>Timeslates</h2>
-  <ol id="list"></ol>
-  <p class="err" id="err" hidden></p>
-
-  <footer>
-    <p>Apache-2.0 · Aziel Eliab · Bound to 127.0.0.1 · <code>temporallock ui</code></p>
-    <p class="foot-note">Immutable timeslate lattice × StaticClock. AZ-OS integrity log, not a kernel. Forks welcome.</p>
-  </footer>
+  <div class="wrap">
+    <header class="top">
+      <p class="brand">TemporalLock</p>
+      <p class="author">Aziel Eliab</p>
+    </header>
+    <main>
+      <h1>Record a receipt</h1>
+      <p class="lede">Write what you observed. TemporalLock keeps it on a chain on this computer.</p>
+      <form id="receipt-form" autocomplete="off">
+        <label for="summary">Summary
+          <span class="hint">A short note of what you saw.</span>
+          <input id="summary" type="text" name="summary">
+        </label>
+        <label for="evidence">Evidence
+          <span class="hint">A path, link, or the note that supports it.</span>
+          <textarea id="evidence" name="evidence" rows="4"></textarea>
+        </label>
+        <button type="submit" class="primary" id="write">Write first receipt</button>
+      </form>
+      <p id="banner" class="banner" role="status">No receipts yet. Write the first one above.</p>
+      <h2>Receipts</h2>
+      <ol id="list"></ol>
+      <p class="empty" id="empty">Nothing recorded in this session yet.</p>
+      <p class="err" id="err" hidden></p>
+      <details class="advanced" id="advanced">
+        <summary>Advanced</summary>
+        <div class="advanced-body">
+          <label for="confidence">Confidence
+            <span class="hint">A number from 0 to 1. Default 0.7.</span>
+            <input id="confidence" type="number" min="0" max="1" step="0.01" value="0.7">
+          </label>
+          <label for="click-index">Click index
+            <span class="hint">Leave blank for the next StaticClock click. It cannot move backward.</span>
+            <input id="click-index" type="number" min="0" step="1">
+          </label>
+          <div class="row">
+            <button type="button" class="ghost" id="verify">Check links</button>
+            <button type="button" class="ghost" id="lattice">Check timeslate binds</button>
+            <button type="button" class="ghost" id="export">Export JSON</button>
+          </div>
+          <label class="file" for="import-json">Import JSON
+            <input type="file" id="import-json" accept="application/json,.json,.jsonl">
+          </label>
+          <details class="about">
+            <summary>About</summary>
+            <div class="about-body">
+              <p>A timeslate is a receipt linked to a StaticClock gear-click. Receipts, not truth claims. Forks stay side by side. A correction is a new receipt.</p>
+              <p>This page listens on 127.0.0.1. The receipts in this session are removed when you stop the app. Version __VERSION__.</p>
+              <p>StaticClock: __STATICCLOCK__</p>
+              <p>AZ-OS: __AZOS__</p>
+              <p>Author: Aziel Eliab</p>
+            </div>
+          </details>
+        </div>
+      </details>
+    </main>
+    <footer>Aziel Eliab · 127.0.0.1</footer>
+  </div>
 <script>
 (function () {
   const $ = (id) => document.getElementById(id);
   let last = null;
-  function fail(msg) { $("err").hidden = false; $("err").textContent = msg; }
+  let mode = "ready";
+
+  function fail(msg) {
+    $("err").hidden = false;
+    $("err").textContent = msg;
+  }
+  function explain(msg) {
+    const text = String(msg || "Something went wrong.");
+    if (/evidence/i.test(text)) return text + " Next: add a note or a path in Evidence, then try again.";
+    if (/genesis/i.test(text)) return text + " Next: write the first receipt before adding another.";
+    if (/confidence/i.test(text)) return text + " Next: set Confidence between 0 and 1 under Advanced.";
+    if (/click_index|rollback/i.test(text)) return text + " Next: use a click index that stays the same or moves forward.";
+    return text + " Next: check the fields and try again.";
+  }
   function fields() {
     const idx = $("click-index").value;
     const body = {
@@ -155,31 +273,68 @@ PAGE = r"""<!DOCTYPE html>
     if (idx !== "") body.click_index = Number(idx);
     return body;
   }
+  function noun(n) { return n === 1 ? "receipt" : "receipts"; }
+  function statusText(data) {
+    const n = (data.receipts || []).length;
+    const v = data.verify || {};
+    const lat = data.lattice || {};
+    if (mode === "verify") {
+      if (!n) return "No receipts yet. Write the first one, then check links.";
+      return v.ok
+        ? ("Links check out. " + n + " " + noun(n) + " on this chain.")
+        : ("These receipts do not link. " + ((v.errors || []).join(" ") || "Read the list below."));
+    }
+    if (mode === "lattice") {
+      if (!n) return "No receipts yet. Write the first one, then check the timeslate binds.";
+      return lat.ok
+        ? ("Timeslate binds check out. " + (lat.bound || 0) + " bound.")
+        : ("Timeslate binds need a look. " + ((lat.errors || []).join(" ") || "Read the list below."));
+    }
+    if (mode === "wrote" && n === 1) return "First receipt saved. Add another when you have a new observation.";
+    if (mode === "wrote") return "Receipt added. Earlier receipts stay as they were.";
+    if (mode === "imported") return "Imported " + n + " " + noun(n) + ".";
+    if (!n) return "No receipts yet. Write the first one above.";
+    return n + " " + noun(n) + " in this session.";
+  }
   function draw(data) {
     last = data;
     $("err").hidden = true;
+    $("err").textContent = "";
+    const n = (data.receipts || []).length;
     const banner = $("banner");
     const v = data.verify || {};
-    banner.className = "banner " + (v.ok ? "ok" : (data.receipts && data.receipts.length ? "bad" : ""));
-    banner.textContent = data.message || (v.ok
-      ? ("Chain intact · " + v.length + " receipts · last " + (v.last_hash || "").slice(0, 12))
-      : ("Verify errors: " + ((v.errors || []).join("; ") || "none")));
+    const lat = data.lattice || {};
+    let tone = "";
+    if (mode === "verify") tone = v.ok ? "ok" : "bad";
+    else if (mode === "lattice") tone = lat.ok ? "ok" : "bad";
+    else if (n) tone = "ok";
+    banner.className = "banner" + (tone ? " " + tone : "");
+    banner.textContent = statusText(data);
+    $("write").textContent = n ? "Add receipt" : "Write first receipt";
+    $("empty").hidden = n > 0;
     const ol = $("list");
-    ol.innerHTML = "";
-    (data.receipts || []).forEach((rec, i) => {
+    ol.replaceChildren();
+    (data.receipts || []).forEach((rec) => {
       const li = document.createElement("li");
       li.className = "receipt";
-      li.innerHTML = "<strong>" + (i) + " · " + (rec.timestamp || "") + "</strong>"
-        + "<p>" + (rec.summary || "") + "</p>"
-        + "<p>" + (rec.evidence || "") + " · conf " + rec.confidence + "</p>"
-        + "<p class='hash'>hash " + rec.hash + "</p>"
-        + "<p class='hash'>prev " + rec.prev_hash + "</p>"
-        + (rec.timeslate_hash
-          ? ("<p class='hash'>timeslate " + rec.timeslate_hash + " · click " + rec.click_index + "</p>"
-             + "<p class='hash'>staticclock_click " + rec.staticclock_click + "</p>")
-          : "");
+      const when = document.createElement("div");
+      when.className = "when";
+      when.textContent = rec.timestamp || "";
+      const summary = document.createElement("p");
+      summary.textContent = rec.summary || "";
+      const evidence = document.createElement("p");
+      evidence.textContent = rec.evidence || "";
+      const hash = document.createElement("p");
+      hash.className = "hash";
+      hash.textContent = rec.hash || "";
+      li.append(when, summary, evidence, hash);
       ol.appendChild(li);
     });
+    if (mode === "wrote") {
+      $("summary").value = "";
+      $("evidence").value = "";
+      $("summary").focus();
+    }
   }
   async function post(url, body) {
     const res = await fetch(url, {
@@ -195,17 +350,33 @@ PAGE = r"""<!DOCTYPE html>
     const res = await fetch("/api/chain");
     draw(await res.json());
   }
-  $("genesis").onclick = async () => {
-    try { draw(await post("/api/genesis", fields())); } catch (e) { fail(String(e.message || e)); }
-  };
-  $("append").onclick = async () => {
-    try { draw(await post("/api/append", fields())); } catch (e) { fail(String(e.message || e)); }
-  };
+  $("receipt-form").addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    if (!$("evidence").value.trim()) {
+      fail("Evidence is required. Next: add a note or a path, then try again.");
+      return;
+    }
+    const conf = Number($("confidence").value);
+    if (!Number.isFinite(conf) || conf < 0 || conf > 1) {
+      fail("Confidence needs to be a number from 0 to 1. Next: set it under Advanced, then try again.");
+      return;
+    }
+    const n = last && last.receipts ? last.receipts.length : 0;
+    mode = "wrote";
+    try {
+      draw(await post(n ? "/api/append" : "/api/genesis", fields()));
+    } catch (e) {
+      mode = "ready";
+      fail(explain(e.message || e));
+    }
+  });
   $("verify").onclick = async () => {
-    try { draw(await post("/api/verify", {})); } catch (e) { fail(String(e.message || e)); }
+    mode = "verify";
+    try { draw(await post("/api/verify", {})); } catch (e) { fail(explain(e.message || e)); }
   };
   $("lattice").onclick = async () => {
-    try { draw(await post("/api/lattice", {})); } catch (e) { fail(String(e.message || e)); }
+    mode = "lattice";
+    try { draw(await post("/api/lattice", {})); } catch (e) { fail(explain(e.message || e)); }
   };
   $("import-json").onchange = async () => {
     const f = $("import-json").files && $("import-json").files[0];
@@ -216,13 +387,28 @@ PAGE = r"""<!DOCTYPE html>
       const parsed = JSON.parse(text);
       receipts = Array.isArray(parsed) ? parsed : (parsed.receipts || []);
     } catch (e) {
-      receipts = text.split(/\n/).filter(Boolean).map((line) => JSON.parse(line));
+      try {
+        receipts = text.split(/\n/).filter(Boolean).map((line) => JSON.parse(line));
+      } catch (err) {
+        fail("That file is not JSON. Next: choose a JSON or JSONL file of receipts.");
+        return;
+      }
     }
-    try { draw(await post("/api/import", { receipts: receipts })); } catch (err) { fail(String(err.message || err)); }
+    if (!receipts || !receipts.length) {
+      fail("That file has no receipts. Next: choose a JSON file that contains a receipts array.");
+      return;
+    }
+    mode = "imported";
+    try { draw(await post("/api/import", { receipts: receipts })); }
+    catch (err) { fail(explain(err.message || err)); }
   };
   $("export").onclick = () => {
-    if (!last) return;
-    const blob = new Blob([JSON.stringify(last.receipts || [], null, 2)], {type: "application/json"});
+    const receipts = (last && last.receipts) || [];
+    if (!receipts.length) {
+      fail("Nothing to export yet. Next: write a receipt, then export again.");
+      return;
+    }
+    const blob = new Blob([JSON.stringify(receipts, null, 2)], {type: "application/json"});
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = "temporallock-receipts.json";
@@ -323,9 +509,30 @@ class Handler(BaseHTTPRequestHandler):
             raise ValueError("expected a JSON object")
         return data
 
+    def _wants_json(self) -> bool:
+        accept = (self.headers.get("Accept") or "").lower()
+        if "application/json" not in accept:
+            return False
+        html_at = accept.find("text/html")
+        json_at = accept.find("application/json")
+        return html_at == -1 or json_at < html_at
+
     def do_GET(self) -> None:  # noqa: N802
         path = urlparse(self.path).path
         if path in ("/", "/index.html"):
+            if self._wants_json():
+                host, port = self.server.server_address[:2]
+                shown = f"[{host}]" if ":" in str(host) else str(host)
+                self._json(200, {
+                    "ok": True,
+                    "name": "TemporalLock",
+                    "author": "Aziel Eliab",
+                    "version": __version__,
+                    "role": ROLE,
+                    "bind_host": host,
+                    "open": f"http://{shown}:{port}/",
+                })
+                return
             self._send(200, PAGE.encode("utf-8"), "text/html; charset=utf-8")
             return
         if path == "/health":
@@ -444,8 +651,8 @@ def make_server(host: str = DEFAULT_HOST, port: int = DEFAULT_PORT) -> TemporalS
 
 def serve(host: str = DEFAULT_HOST, port: int = DEFAULT_PORT) -> None:
     httpd = make_server(host, port)
-    sys.stdout.write(f"TemporalLock UI  http://{host}:{port}/\n")
-    sys.stdout.write("Local only. Timeslate lattice × StaticClock. AZ-OS integrity log, not a kernel.\n")
+    shown = f"[{host}]" if ":" in host else host
+    sys.stdout.write(f"Open http://{shown}:{port}/\n")
     sys.stdout.flush()
     try:
         httpd.serve_forever()
